@@ -36,8 +36,10 @@ impl Actor {
 
 #[derive(Debug)]
 struct InputState {
-	xaxis: f32,
-	yaxis: f32,
+	up: f32,
+	down: f32,
+	right: f32,
+	left: f32,
 	shift: bool,
 	shot: bool,
 }
@@ -45,8 +47,10 @@ struct InputState {
 impl Default for InputState {
 	fn default() -> InputState {
 		InputState {
-			xaxis: 0.0,
-			yaxis: 0.0,
+			up: 0.0,
+			down: 0.0,
+			right: 0.0,
+			left: 0.0,
 			shift: false,
 			shot: false,
 		}
