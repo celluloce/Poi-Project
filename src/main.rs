@@ -1,6 +1,7 @@
 extern crate ggez;
 
 use ggez::*;
+use ggez::event::{Keycode, Mod};
 
 #[derive(Debug)]
 enum ActorType {
@@ -83,8 +84,56 @@ impl ggez::event::EventHandler for MainState {
 		// **********
 
 		graphics::present(ctx);
-      Ok(())
-  }
+	Ok(())
+	}
+
+	fn key_down_event(&mut self, ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
+		match keycode {
+			Keycode::Up => {
+				self.input.yaxis = -1.0;
+			}
+			Keycode::Down => {
+				self.input.yaxis = 1.0;
+			}
+			Keycode::Right => {
+				self.input.xaxis = 1.0;
+			}
+			Keycode::Left => {
+				self.input.xaxis = -1.0;
+			}
+			Keycode::LShift => {
+				self.input.shift = true;
+			}
+			Keycode::Z => {
+				self.input.shot = true;
+			}
+			_ => ()
+		}
+	}
+
+	fn key_up_event(&mut self, ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
+		match keycode {
+			Keycode::Up => {
+				self.input.yaxis = 0.0;
+			}
+			Keycode::Down => {
+				self.input.yaxis = 0.0;
+			}
+			Keycode::Right => {
+				self.input.xaxis = 0.0;
+			}
+			Keycode::Left => {
+				self.input.xaxis = 0.0;
+			}
+			Keycode::LShift => {
+				self.input.shift = false;
+			}
+			Keycode::Z => {
+				self.input.shot = false;
+			}
+			_ => ()
+		}
+	}
 }
 pub fn main() {
     let mut cb = ContextBuilder::new("poi-project", "ggez")
