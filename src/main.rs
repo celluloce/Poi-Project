@@ -45,7 +45,23 @@ impl ggez::event::EventHandler for MainState {
   fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
       Ok(())
   }
+
   fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
+		graphics::clear(ctx);
+
+		// **********
+		// drow player circle
+		let point = self.player.point;
+		graphics::circle(
+			ctx,
+			graphics::DrawMode::Fill,
+			graphics::Point2::new(point[0],point[1]),
+			10.0,
+			0.1,
+		);
+		// **********
+
+		graphics::present(ctx);
       Ok(())
   }
 }
