@@ -52,7 +52,7 @@ impl ggez::event::EventHandler for MainState {
 pub fn main() {
     let mut cb = ContextBuilder::new("poi-project", "ggez")
         .window_setup(conf::WindowSetup::default().title("poi-project"))
-        .window_mode(conf::WindowMode::default().dimensions(640, 480));
+        .window_mode(conf::WindowMode::default().dimensions(1280, 960));
 
     let ctx = &mut cb.build().unwrap();
 
