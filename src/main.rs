@@ -86,8 +86,14 @@ impl ggez::event::EventHandler for MainState {
 			// -> InputState値*スカラ値=ActorVelocity
 			// -> ActorVelocity*1Frameあたりかかる秒=1Frameあたり進む距離
 			let s_input = self.input;
-			self.player.velocity[0] = (s_input.right + s_input.left) * 200.0;
-			self.player.velocity[1] = (s_input.up + s_input.down) * 200.0;
+			if !s_input.shift {
+				// 高速移動
+				self.player.velocity[0] = (s_input.right + s_input.left) * 200.0;
+				self.player.velocity[1] = (s_input.up + s_input.down) * 200.0;
+			} else {
+				self.player.velocity[0] = (s_input.right + s_input.left) * 100.0;
+				self.player.velocity[1] = (s_input.up + s_input.down) * 100.0;
+			}
 			Actor::update_point(&mut self.player, seconds)
 		}
 		Ok(())
