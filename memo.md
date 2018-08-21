@@ -9,5 +9,6 @@
 	- [x] Shiftで低速を導入
 - [ ] Shotを導入
 	- [x] コンストラクタ作る
-	- [ ] MainStateに組み込む
-	- [ ] MainStateのコンストラクタに組み込む 
+	- [x] MainStateに組み込む
+	- [x] MainStateのコンストラクタに組み込む 
+	- [ ] 実際に飛ばしてみる

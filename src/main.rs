@@ -68,6 +68,7 @@ impl Default for InputState {
 #[derive(Debug)]
 struct MainState {
 	player: Actor,
+	shot: Vec<Actor>,
 	input: InputState,
 }
 
@@ -75,6 +76,7 @@ impl MainState {
 	fn new(ctx: &mut Context) -> GameResult<MainState> {
 		let s = MainState{
 			player: Actor::player_new(),
+			shot: Vec::with_capacity(50),
 			input: InputState::default(),
 		};
 
