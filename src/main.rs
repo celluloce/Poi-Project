@@ -1,7 +1,10 @@
 extern crate ggez;
 
-use ggez::*;
-use ggez::event::{Keycode, Mod};
+use ggez::graphics;
+use ggez::event::{self, Keycode, Mod};
+use ggez::timer;
+use ggez::{Context, ContextBuilder, GameResult};
+use ggez::conf;
 
 #[derive(Debug)]
 enum ActorType {
@@ -12,9 +15,9 @@ enum ActorType {
 struct Actor {
 	actor_type: ActorType,
 	point: [f32; 2],
-	// 位置 [y, x]
+	// 位置 [x, y]
 	velocity: [f32; 2],
-	// 速度 [y, x]
+	// 1フレームあたりの移動距離 [x, y]
 }
 
 impl Actor {
@@ -24,6 +27,10 @@ impl Actor {
 			point: [300.0, 500.0],
 			velocity: [0.0; 2],
 		}
+	}
+	fn update_point(actor: &mut Actor, dt: f32) {
+		actor.point[0] += actor.velocity[0] * dt;
+		actor.point[1] += actor.velocity[1] * dt;
 	}
 }
 
@@ -61,17 +68,30 @@ impl MainState {
 
 		Ok(s)
 	}
+
 }
 
 impl ggez::event::EventHandler for MainState {
-  fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-      Ok(())
-  }
+	fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+		const FPS: u32 = 60;
+		let seconds = 1.0 / FPS as f32;
 
-  fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
+		while timer::check_update_time(ctx, FPS) {
+			// Update player point
+			// キーインプット基底ベクトルをInputState値として定める
+			// -> InputState値*スカラ値=ActorVelocity
+			// -> ActorVelocity*1Frameあたりかかる秒=1Frameあたり進む距離
+			println!("{:?}", self.input);
+			self.player.velocity[0] = self.input.xaxis * 100.0;
+			self.player.velocity[1] = self.input.yaxis * 100.0;
+			Actor::update_point(&mut self.player, seconds)
+		}
+		Ok(())
+	}
+
+	fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
 		graphics::clear(ctx);
 
-		// **********
 		// drow player circle
 		let point = self.player.point;
 		graphics::circle(
@@ -81,7 +101,6 @@ impl ggez::event::EventHandler for MainState {
 			10.0,
 			0.1,
 		);
-		// **********
 
 		graphics::present(ctx);
 	Ok(())
@@ -90,16 +109,16 @@ impl ggez::event::EventHandler for MainState {
 	fn key_down_event(&mut self, ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
 		match keycode {
 			Keycode::Up => {
-				self.input.yaxis = -1.0;
+				self.input.yaxis -= 1.0;
 			}
 			Keycode::Down => {
-				self.input.yaxis = 1.0;
+				self.input.yaxis += 1.0;
 			}
 			Keycode::Right => {
-				self.input.xaxis = 1.0;
+				self.input.xaxis += 1.0;
 			}
 			Keycode::Left => {
-				self.input.xaxis = -1.0;
+				self.input.xaxis -= 1.0;
 			}
 			Keycode::LShift => {
 				self.input.shift = true;
@@ -114,16 +133,16 @@ impl ggez::event::EventHandler for MainState {
 	fn key_up_event(&mut self, ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
 		match keycode {
 			Keycode::Up => {
-				self.input.yaxis = 0.0;
+				self.input.yaxis += 1.0;
 			}
 			Keycode::Down => {
-				self.input.yaxis = 0.0;
+				self.input.yaxis -= 1.0;
 			}
 			Keycode::Right => {
-				self.input.xaxis = 0.0;
+				self.input.xaxis -= 1.0;
 			}
 			Keycode::Left => {
-				self.input.xaxis = 0.0;
+				self.input.xaxis += 1.0;
 			}
 			Keycode::LShift => {
 				self.input.shift = false;
@@ -135,25 +154,26 @@ impl ggez::event::EventHandler for MainState {
 		}
 	}
 }
+
 pub fn main() {
-    let mut cb = ContextBuilder::new("poi-project", "ggez")
-        .window_setup(conf::WindowSetup::default().title("poi-project"))
-        .window_mode(conf::WindowMode::default().dimensions(1280, 960));
+	let mut cb = ContextBuilder::new("poi-project", "ggez")
+		.window_setup(conf::WindowSetup::default().title("poi-project"))
+		.window_mode(conf::WindowMode::default().dimensions(1280, 960));
 
-    let ctx = &mut cb.build().unwrap();
+	let ctx = &mut cb.build().unwrap();
 
-    match MainState::new(ctx) {
-        Err(e) => {
-            println!("Could not load game!");
-            println!("Error: {}", e);
-        }
-        Ok(ref mut game) => {
-            let result = event::run(ctx, game);
-            if let Err(e) = result {
-                println!("Error encountered running game: {}", e);
-            } else {
-                println!("Game exited cleanly.");
-            }
-        }
-    }
+	match MainState::new(ctx) {
+		Err(e) => {
+			println!("Could not load game!");
+			println!("Error: {}", e);
+		}
+		Ok(ref mut game) => {
+			let result = event::run(ctx, game);
+			if let Err(e) = result {
+				println!("Error encountered running game: {}", e);
+			} else {
+				println!("Game exited cleanly.");
+			}
+		}
+	}
 }
