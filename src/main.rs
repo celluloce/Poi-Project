@@ -6,6 +6,14 @@ struct MainState {
 
 }
 
+impl MainState {
+	fn new(ctx: &mut Context) -> GameResult<MainState> {
+		let s = MainState{};
+
+		Ok(s)
+	}
+}
+
 impl ggez::event::EventHandler for MainState {
   fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
       Ok(())
@@ -14,10 +22,25 @@ impl ggez::event::EventHandler for MainState {
       Ok(())
   }
 }
+pub fn main() {
+    let mut cb = ContextBuilder::new("poi-project", "ggez")
+        .window_setup(conf::WindowSetup::default().title("poi-project"))
+        .window_mode(conf::WindowMode::default().dimensions(640, 480));
 
-fn main() {
-    let state = &mut MainState { };
-    let c = conf::Conf::new();
-    let ctx = &mut Context::load_from_conf("generative_art", "awesome_person", c).unwrap();
-    event::run(ctx, state).unwrap();
+    let ctx = &mut cb.build().unwrap();
+
+    match MainState::new(ctx) {
+        Err(e) => {
+            println!("Could not load game!");
+            println!("Error: {}", e);
+        }
+        Ok(ref mut game) => {
+            let result = event::run(ctx, game);
+            if let Err(e) = result {
+                println!("Error encountered running game: {}", e);
+            } else {
+                println!("Game exited cleanly.");
+            }
+        }
+    }
 }
