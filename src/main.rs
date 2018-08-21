@@ -2,13 +2,40 @@ extern crate ggez;
 
 use ggez::*;
 
-struct MainState {
+#[derive(Debug)]
+enum ActorType {
+	Player,
+}
 
+#[derive(Debug)]
+struct Actor {
+	actor_type: ActorType,
+	point: [f32; 2],
+	// 位置 [y, x]
+	velocity: [f32; 2],
+	// 速度 [y, x]
+}
+
+impl Actor {
+	fn player_new() -> Actor {
+		Actor {
+			actor_type: ActorType::Player,
+			point: [300.0, 500.0],
+			velocity: [0.0; 2],
+		}
+	}
+}
+
+#[derive(Debug)]
+struct MainState {
+	player: Actor,
 }
 
 impl MainState {
 	fn new(ctx: &mut Context) -> GameResult<MainState> {
-		let s = MainState{};
+		let s = MainState{
+			player: Actor::player_new(),
+		};
 
 		Ok(s)
 	}
