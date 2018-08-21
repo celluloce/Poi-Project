@@ -9,6 +9,7 @@ use ggez::conf;
 #[derive(Debug)]
 enum ActorType {
 	Player,
+	Shot,
 }
 
 #[derive(Debug)]
@@ -26,6 +27,13 @@ impl Actor {
 			actor_type: ActorType::Player,
 			point: [300.0, 500.0],
 			velocity: [0.0; 2],
+		}
+	}
+	fn shot_new(p_point: [f32; 2]) -> Actor {
+		Actor {
+			actor_type: ActorType::Shot,
+			point: p_point,
+			velocity: [0.0, -500.0]
 		}
 	}
 	fn update_point(actor: &mut Actor, dt: f32) {
