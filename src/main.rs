@@ -68,7 +68,7 @@ impl Default for InputState {
 #[derive(Debug)]
 struct MainState {
 	player: Actor,
-	shot: Vec<Actor>,
+	shots: Vec<Actor>,
 	input: InputState,
 }
 
@@ -76,7 +76,7 @@ impl MainState {
 	fn new(ctx: &mut Context) -> GameResult<MainState> {
 		let s = MainState{
 			player: Actor::player_new(),
-			shot: Vec::with_capacity(50),
+			shots: Vec::with_capacity(50),
 			input: InputState::default(),
 		};
 
@@ -100,11 +100,21 @@ impl ggez::event::EventHandler for MainState {
 				// 高速移動
 				self.player.velocity[0] = (s_input.right + s_input.left) * 200.0;
 				self.player.velocity[1] = (s_input.up + s_input.down) * 200.0;
+				// 低速Shift移動
 			} else {
 				self.player.velocity[0] = (s_input.right + s_input.left) * 100.0;
 				self.player.velocity[1] = (s_input.up + s_input.down) * 100.0;
 			}
-			Actor::update_point(&mut self.player, seconds)
+			Actor::update_point(&mut self.player, seconds);
+
+			// Update shot state
+			if self.input.shot {
+				// InputStateのshotがtrueの時、shotをVectorに入れる
+				self.shots.push(Actor::shot_new(self.player.point))
+			}
+			for act in &mut self.shots {
+				Actor::update_point(act, seconds);
+			}
 		}
 		Ok(())
 	}
@@ -112,8 +122,9 @@ impl ggez::event::EventHandler for MainState {
 	fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
 		graphics::clear(ctx);
 
-		// drow player circle
 		let point = self.player.point;
+
+		// drow player circle
 		graphics::circle(
 			ctx,
 			graphics::DrawMode::Fill,
@@ -121,6 +132,16 @@ impl ggez::event::EventHandler for MainState {
 			10.0,
 			0.1,
 		);
+
+		// drow shot rectangle
+		for act in &mut self.shots {
+			let point = act.point;
+			graphics::rectangle(
+				ctx,
+				graphics::DrawMode::Fill,
+				graphics::Rect::new(point[0], point[1], 20.0, 10.0),
+			);
+		}
 
 		graphics::present(ctx);
 	Ok(())

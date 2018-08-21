@@ -12,3 +12,9 @@
 	- [x] MainStateに組み込む
 	- [x] MainStateのコンストラクタに組み込む 
 	- [ ] 実際に飛ばしてみる
+		- [x] shotを長方形で描画
+		- [ ] ビームのようなshotになった
+			- [x] MainStateにカウンタ導入
+				- 1秒でリセットするやつ
+				- 上手く行かなかったのでボツ
+			- [ ] player_shot_timeoutなるものを導入
