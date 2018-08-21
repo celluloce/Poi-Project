@@ -27,14 +27,35 @@ impl Actor {
 }
 
 #[derive(Debug)]
+struct InputState {
+	xaxis: f32,
+	yaxis: f32,
+	shift: bool,
+	shot: bool,
+}
+
+impl Default for InputState {
+	fn default() -> InputState {
+		InputState {
+			xaxis: 0.0,
+			yaxis: 0.0,
+			shift: false,
+			shot: false,
+		}
+	}
+}
+
+#[derive(Debug)]
 struct MainState {
 	player: Actor,
+	input: InputState,
 }
 
 impl MainState {
 	fn new(ctx: &mut Context) -> GameResult<MainState> {
 		let s = MainState{
 			player: Actor::player_new(),
+			input: InputState::default(),
 		};
 
 		Ok(s)
