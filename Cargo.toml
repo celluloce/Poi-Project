@@ -1,0 +1,7 @@
+[package]
+name = "poi-project"
+version = "0.1.0"
+authors = ["celluloce <celluloce24@gmail.com>"]
+
+[dependencies]
+ggez = "0.4.3"
