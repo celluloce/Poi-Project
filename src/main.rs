@@ -34,7 +34,7 @@ impl Actor {
 	}
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct InputState {
 	up: f32,
 	down: f32,
@@ -85,9 +85,9 @@ impl ggez::event::EventHandler for MainState {
 			// キーインプット基底ベクトルをInputState値として定める
 			// -> InputState値*スカラ値=ActorVelocity
 			// -> ActorVelocity*1Frameあたりかかる秒=1Frameあたり進む距離
-			println!("{:?}", self.input);
-			self.player.velocity[0] = self.input.xaxis * 100.0;
-			self.player.velocity[1] = self.input.yaxis * 100.0;
+			let s_input = self.input;
+			self.player.velocity[0] = (s_input.right + s_input.left) * 200.0;
+			self.player.velocity[1] = (s_input.up + s_input.down) * 200.0;
 			Actor::update_point(&mut self.player, seconds)
 		}
 		Ok(())
@@ -113,16 +113,16 @@ impl ggez::event::EventHandler for MainState {
 	fn key_down_event(&mut self, ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
 		match keycode {
 			Keycode::Up => {
-				self.input.yaxis -= 1.0;
+				self.input.up = -1.0;
 			}
 			Keycode::Down => {
-				self.input.yaxis += 1.0;
+				self.input.down = 1.0;
 			}
 			Keycode::Right => {
-				self.input.xaxis += 1.0;
+				self.input.right = 1.0;
 			}
 			Keycode::Left => {
-				self.input.xaxis -= 1.0;
+				self.input.left = -1.0;
 			}
 			Keycode::LShift => {
 				self.input.shift = true;
@@ -137,16 +137,16 @@ impl ggez::event::EventHandler for MainState {
 	fn key_up_event(&mut self, ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
 		match keycode {
 			Keycode::Up => {
-				self.input.yaxis += 1.0;
+				self.input.up = 0.0;
 			}
 			Keycode::Down => {
-				self.input.yaxis -= 1.0;
+				self.input.down = 0.0;
 			}
 			Keycode::Right => {
-				self.input.xaxis -= 1.0;
+				self.input.right = 0.0;
 			}
 			Keycode::Left => {
-				self.input.xaxis += 1.0;
+				self.input.left = 0.0;
 			}
 			Keycode::LShift => {
 				self.input.shift = false;
