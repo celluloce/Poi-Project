@@ -40,8 +40,26 @@ impl Actor {
 		}
 	}
 	fn update_point(actor: &mut Actor, dt: f32) {
-		actor.point[0] += actor.velocity[0] * dt;
-		actor.point[1] += actor.velocity[1] * dt;
+		let mut x_vel = actor.velocity[0];
+		let mut y_vel = actor.velocity[1];
+		let s_width = SCREEN_WIDTH as f32;
+		let s_height = SCREEN_HEIGHT as f32;
+
+		if actor.point[0] < 0.0 && x_vel < 0.0 {
+			x_vel = 0.0;
+		}
+		if actor.point[0] > s_width && x_vel > 0.0 {
+			x_vel = 0.0;
+		}
+		if actor.point[1] < 0.0 && y_vel < 0.0 {
+			y_vel = 0.0;
+		}
+		if actor.point[1] > s_height && y_vel > 0.0 {
+			y_vel = 0.0;
+		}
+
+		actor.point[0] += x_vel * dt;
+		actor.point[1] += y_vel * dt;
 	}
 }
 
