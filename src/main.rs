@@ -18,7 +18,7 @@ struct Actor {
 	point: [f32; 2],
 	// 位置 [x, y]
 	velocity: [f32; 2],
-	// 1フレームあたりの移動距離 [x, y]
+	// 1秒の移動距離 [x, y]
 }
 
 impl Actor {
@@ -33,7 +33,7 @@ impl Actor {
 		Actor {
 			actor_type: ActorType::Shot,
 			point: p_point,
-			velocity: [0.0, -500.0]
+			velocity: [0.0, -3000.0]
 		}
 	}
 	fn update_point(actor: &mut Actor, dt: f32) {
@@ -139,7 +139,7 @@ impl ggez::event::EventHandler for MainState {
 			graphics::rectangle(
 				ctx,
 				graphics::DrawMode::Fill,
-				graphics::Rect::new(point[0], point[1], 20.0, 10.0),
+				graphics::Rect::new(point[0], point[1], 10.0, 20.0),
 			);
 		}
 
