@@ -73,8 +73,8 @@ struct InputState {
 	shot: bool,
 }
 
-impl Default for InputState {
-	fn default() -> InputState {
+impl InputState {
+	fn new() -> InputState {
 		InputState {
 			up: 0.0,
 			down: 0.0,
@@ -98,7 +98,7 @@ impl MainState {
 		let s = MainState{
 			player: Actor::player_new(),
 			shots: Vec::with_capacity(50),
-			input: InputState::default(),
+			input: InputState::new(),
 		};
 
 		Ok(s)
