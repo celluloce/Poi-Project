@@ -12,7 +12,9 @@ const SCREEN_HEIGHT: u32 = 960;
 #[derive(Debug)]
 enum ActorType {
 	Player,
-	Shot,
+	Enemy,
+	PlShot,
+	EnShot,
 }
 
 #[derive(Debug)]
@@ -22,6 +24,9 @@ struct Actor {
 	// 位置 [x, y]
 	velocity: [f32; 2],
 	// 1秒の移動距離 [x, y]
+	// Shot: [Angle(0.0 <= x < 2.0, 真下が0, 右回り), scalar]
+	life: f32,
+	// Shot: 1.0と0.0でboolのように使う
 }
 
 impl Actor {
@@ -30,13 +35,15 @@ impl Actor {
 			actor_type: ActorType::Player,
 			point: [300.0, 500.0],
 			velocity: [0.0; 2],
+			life: 3.0,
 		}
 	}
 	fn shot_new(p_point: [f32; 2]) -> Actor {
 		Actor {
-			actor_type: ActorType::Shot,
+			actor_type: ActorType::PlShot,
 			point: p_point,
-			velocity: [0.0, -3000.0]
+			velocity: [1.0, 3000.0],
+			life: 1.0,
 		}
 	}
 	fn update_point(actor: &mut Actor, dt: f32) {
@@ -60,6 +67,34 @@ impl Actor {
 
 		actor.point[0] += x_vel * dt;
 		actor.point[1] += y_vel * dt;
+	}
+	fn update_point_shot(actor: &mut Actor, dt: f32) {
+		use std::f32::consts::PI;
+
+		let s_width = SCREEN_WIDTH as f32 + 30.0;
+		let s_height = SCREEN_HEIGHT as f32 + 30.0;
+
+		let scalar = actor.velocity[1];
+		let ragian = actor.velocity[0] * PI;
+		let mut x_vel = scalar * ragian.sin();
+		let mut y_vel = scalar * ragian.cos();
+
+		if actor.point[0] < -30.0 && x_vel < 0.0 {
+			x_vel = 0.0;
+		}
+		if actor.point[0] > s_width && x_vel > 0.0 {
+			x_vel = 0.0;
+		}
+		if actor.point[1] < -30.0 && y_vel < 0.0 {
+			y_vel = 0.0;
+		}
+		if actor.point[1] > s_height && y_vel > 0.0 {
+			y_vel = 0.0;
+		}
+
+		actor.point[0] += x_vel * dt;
+		actor.point[1] += y_vel * dt;
+
 	}
 }
 
@@ -134,7 +169,7 @@ impl ggez::event::EventHandler for MainState {
 				self.shots.push(Actor::shot_new(self.player.point))
 			}
 			for act in &mut self.shots {
-				Actor::update_point(act, seconds);
+				Actor::update_point_shot(act, seconds);
 			}
 		}
 		Ok(())
