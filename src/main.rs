@@ -46,6 +46,14 @@ impl Actor {
 			life: 1.0,
 		}
 	}
+	fn enemy_new(point: [f32; 2], velocity: [f32; 2], life: f32) -> Actor {
+		Actor {
+			actor_type: ActorType::Enemy,
+			point: point,
+			velocity: velocity,
+			life: life,
+		}
+	}
 	fn update_point(actor: &mut Actor, dt: f32) {
 		let mut x_vel = actor.velocity[0];
 		let mut y_vel = actor.velocity[1];
@@ -129,6 +137,7 @@ impl InputState {
 struct MainState {
 	player: Actor,
 	shots: Vec<Actor>,
+	enemy: Vec<Actor>,
 	input: InputState,
 }
 
@@ -137,6 +146,7 @@ impl MainState {
 		let s = MainState{
 			player: Actor::player_new(),
 			shots: Vec::with_capacity(50),
+			enemy: Vec::with_capacity(30),
 			input: InputState::new(),
 		};
 
