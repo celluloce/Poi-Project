@@ -81,15 +81,19 @@ impl Actor {
 
 		if actor.point[0] < -30.0 && x_vel < 0.0 {
 			x_vel = 0.0;
+			actor.life = 0.0;
 		}
 		if actor.point[0] > s_width && x_vel > 0.0 {
 			x_vel = 0.0;
+			actor.life = 0.0;
 		}
 		if actor.point[1] < -30.0 && y_vel < 0.0 {
 			y_vel = 0.0;
+			actor.life = 0.0;
 		}
 		if actor.point[1] > s_height && y_vel > 0.0 {
 			y_vel = 0.0;
+			actor.life = 0.0;
 		}
 
 		actor.point[0] += x_vel * dt;
@@ -168,9 +172,25 @@ impl ggez::event::EventHandler for MainState {
 				// InputStateのshotがtrueの時、shotをVectorに入れる
 				self.shots.push(Actor::shot_new(self.player.point))
 			}
+			if self.shots.len() > 40 {
+				for n in 0..self.shots.len() - 1 {
+					if self.shots[n].life == 0.0 {
+						self.shots[n] = self.shots.pop().unwrap();
+						break
+					}
+				}
+			}
 			for act in &mut self.shots {
 				Actor::update_point_shot(act, seconds);
 			}
+
+			// debug shot
+			// for act in &self.shots {
+			// 	print!("{}", act.life);
+			// }
+			// println!("");
+			// println!("shot len: {}", self.shots.len());
+			// println!("");
 		}
 		Ok(())
 	}
