@@ -9,6 +9,7 @@
 - actor
 	- [ ] 当たり判定を導入
 		- [ ] player, shot, enemyのコンストラクた書き換え
+		- [ ] あっ書き方わかんね
 	- player 
 		- [x] プレイヤを円で表示
 		- [x] プレイヤを動かす
@@ -35,6 +36,7 @@
 		- [x] コンストラクタ作成
 		- [x] MainStateに組み込む
 		- [ ] 円として描写
+		- [x] 時間計測を導入
 - feald
 	- [ ] プレイ画面を作成
 		- [ ] 色を変える
@@ -43,3 +45,23 @@
 	- [ ] プレイヤのライフを円で描写
 - other
 	- [ ] ややこしいのでy軸反転（現状では下がyが大きくなる）
+
+## 当たり判定
+
+## 時間計測
+```
+struct State {
+	game_start_timer: Duration,
+}
+
+impl ggez::event::EventHandler for State {
+	fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+		let start = get_time_since_start(ctx);
+		println!("{:?}", start - self.game_start_timer);
+		self.game_start_timer = start;
+		
+		Ok(())
+	}
+}
+```
+

@@ -161,6 +161,11 @@ impl ggez::event::EventHandler for MainState {
 		let seconds = 1.0 / FPS as f32;
 
 		while timer::check_update_time(ctx, FPS) {
+
+			// 開始からの経過時間を計測
+			let since_start = timer::get_time_since_start(ctx);
+			// println!("{:?}", since_start);
+
 			// Update player point
 			// キーインプット基底ベクトルをInputState値として定める
 			// -> InputState値*スカラ値=ActorVelocity
