@@ -25,6 +25,8 @@ struct Actor {
 	velocity: [f32; 2],
 	// 1秒の移動距離 [x, y]
 	// Shot: [Angle(0.0 <= x < 2.0, 真下が0, 右回り), scalar]
+	bbox_size: f32,
+	// 当たり判定の半径
 	life: f32,
 	// Shot: 1.0と0.0でboolのように使う
 }
@@ -35,6 +37,7 @@ impl Actor {
 			actor_type: ActorType::Player,
 			point: [300.0, 500.0],
 			velocity: [0.0; 2],
+			bbox_size: 5.0,
 			life: 3.0,
 		}
 	}
@@ -43,6 +46,7 @@ impl Actor {
 			actor_type: ActorType::PlShot,
 			point: p_point,
 			velocity: [1.0, 3000.0],
+			bbox_size: 10.0,
 			life: 1.0,
 		}
 	}
@@ -51,6 +55,7 @@ impl Actor {
 			actor_type: ActorType::Enemy,
 			point: point,
 			velocity: velocity,
+			bbox_size: 10.0,
 			life: life,
 		}
 	}
@@ -139,6 +144,7 @@ struct MainState {
 	shots: Vec<Actor>,
 	enemy: Vec<Actor>,
 	input: InputState,
+	game_count: u32,
 }
 
 impl MainState {
@@ -148,9 +154,13 @@ impl MainState {
 			shots: Vec::with_capacity(50),
 			enemy: Vec::with_capacity(30),
 			input: InputState::new(),
+			game_count: 0,
 		};
 
 		Ok(s)
+	}
+	fn game_count_new(&mut self) {
+		self.game_count = 0;
 	}
 
 }
@@ -161,7 +171,13 @@ impl ggez::event::EventHandler for MainState {
 		let seconds = 1.0 / FPS as f32;
 
 		while timer::check_update_time(ctx, FPS) {
-			// Update player point
+
+			// 開始からの経過時間を計測----------
+			let since_start = timer::get_time_since_start(ctx);
+			// println!("{:?}", since_start);
+			// -------------------------
+
+			// Update player point----------
 			// キーインプット基底ベクトルをInputState値として定める
 			// -> InputState値*スカラ値=ActorVelocity
 			// -> ActorVelocity*1Frameあたりかかる秒=1Frameあたり進む距離
@@ -176,31 +192,65 @@ impl ggez::event::EventHandler for MainState {
 				self.player.velocity[1] = (s_input.up + s_input.down) * 100.0;
 			}
 			Actor::update_point(&mut self.player, seconds);
+			// -------------------------
 
-			// Update shot state
+			// Update shot state----------
 			if self.input.shot {
 				// InputStateのshotがtrueの時、shotをVectorに入れる
 				self.shots.push(Actor::shot_new(self.player.point))
 			}
-			if self.shots.len() > 40 {
-				for n in 0..self.shots.len() - 1 {
-					if self.shots[n].life == 0.0 {
-						self.shots[n] = self.shots.pop().unwrap();
-						break
-					}
-				}
-			}
 			for act in &mut self.shots {
 				Actor::update_point_shot(act, seconds);
 			}
+			// -------------------------
 
-			// debug shot
+			// debug shot----------
 			// for act in &self.shots {
 			// 	print!("{}", act.life);
 			// }
 			// println!("");
 			// println!("shot len: {}", self.shots.len());
 			// println!("");
+			// -------------------------
+
+			// Update Enemy State----------
+			if self.game_count % 30 == 0 && self.game_count < 300{
+				self.enemy.push(Actor::enemy_new([1000.0, 100.0], [-100.0, 30.0], 30.0))
+			}
+			for act in &mut self.enemy {
+				Actor::update_point(act, seconds)
+			}
+			// -------------------------
+
+			// Hit PlayerShots & Enemy----------
+				for enemy in &mut self.enemy {
+					for shot in &mut self.shots {
+						// rr > xx + yy
+						let x = shot.point[0] - enemy.point[0];
+						let y = shot.point[1] - enemy.point[1];
+						let r = shot.bbox_size + enemy.bbox_size;
+
+						let xx = x * x;
+						let yy = y * y;
+						let rr = r * r;
+						if rr > xx + yy {
+							enemy.life = 0.0;
+							shot.life = 0.0;
+						}
+					}
+				}
+			// -------------------------
+
+			// Clear zero_life Enemy, Shot----------
+			self.shots.retain(|s| s.life > 0.0);
+			self.enemy.retain(|s| s.life > 0.0);
+			// -------------------------
+
+			// Update game counter----------
+			self.game_count += 1;
+			println!("{}", self.game_count);
+			// -------------------------
+
 		}
 		Ok(())
 	}
@@ -225,12 +275,24 @@ impl ggez::event::EventHandler for MainState {
 			graphics::rectangle(
 				ctx,
 				graphics::DrawMode::Fill,
-				graphics::Rect::new(point[0], point[1], 10.0, 20.0),
+				graphics::Rect::new(point[0], point[1], 20.0, 30.0),
+			);
+		}
+
+		// drow enemy circle
+		for act in &mut self.enemy {
+			let point = act.point;
+			graphics::circle(
+				ctx,
+				graphics::DrawMode::Fill,
+				graphics::Point2::new(point[0],point[1]),
+				10.0,
+				0.1,
 			);
 		}
 
 		graphics::present(ctx);
-	Ok(())
+		Ok(())
 	}
 
 	fn key_down_event(&mut self, ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
