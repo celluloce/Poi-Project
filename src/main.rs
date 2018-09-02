@@ -144,6 +144,7 @@ struct MainState {
 	shots: Vec<Actor>,
 	enemy: Vec<Actor>,
 	input: InputState,
+	game_count: u32,
 }
 
 impl MainState {
@@ -153,9 +154,13 @@ impl MainState {
 			shots: Vec::with_capacity(50),
 			enemy: Vec::with_capacity(30),
 			input: InputState::new(),
+			game_count: 0,
 		};
 
 		Ok(s)
+	}
+	fn game_count_new(&mut self) {
+		self.game_count = 0;
 	}
 
 }
@@ -167,12 +172,12 @@ impl ggez::event::EventHandler for MainState {
 
 		while timer::check_update_time(ctx, FPS) {
 
-			// 開始からの経過時間を計測
+			// 開始からの経過時間を計測----------
 			let since_start = timer::get_time_since_start(ctx);
 			// println!("{:?}", since_start);
 			// -------------------------
 
-			// Update player point
+			// Update player point----------
 			// キーインプット基底ベクトルをInputState値として定める
 			// -> InputState値*スカラ値=ActorVelocity
 			// -> ActorVelocity*1Frameあたりかかる秒=1Frameあたり進む距離
@@ -189,7 +194,7 @@ impl ggez::event::EventHandler for MainState {
 			Actor::update_point(&mut self.player, seconds);
 			// -------------------------
 
-			// Update shot state
+			// Update shot state----------
 			if self.input.shot {
 				// InputStateのshotがtrueの時、shotをVectorに入れる
 				self.shots.push(Actor::shot_new(self.player.point))
@@ -206,7 +211,7 @@ impl ggez::event::EventHandler for MainState {
 				Actor::update_point_shot(act, seconds);
 			}
 
-			// debug shot
+			// debug shot----------
 			// for act in &self.shots {
 			// 	print!("{}", act.life);
 			// }
@@ -214,6 +219,15 @@ impl ggez::event::EventHandler for MainState {
 			// println!("shot len: {}", self.shots.len());
 			// println!("");
 			// -------------------------
+
+			// Update game counter----------
+			self.game_count += 1;
+			if self.game_count == 300 {
+				MainState::game_count_new(self);
+			}
+			println!("{}", self.game_count);
+			// -------------------------
+
 		}
 		Ok(())
 	}
