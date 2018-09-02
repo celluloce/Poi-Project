@@ -220,11 +220,17 @@ impl ggez::event::EventHandler for MainState {
 			// println!("");
 			// -------------------------
 
+			// Update Enemy State----------
+			if self.game_count == 30 {
+				self.enemy.push(Actor::enemy_new([1000.0, 100.0], [-100.0, 30.0], 30.0))
+			}
+			for act in &mut self.enemy {
+				Actor::update_point(act, seconds)
+			}
+
+			// -------------------------
 			// Update game counter----------
 			self.game_count += 1;
-			if self.game_count == 300 {
-				MainState::game_count_new(self);
-			}
 			println!("{}", self.game_count);
 			// -------------------------
 
@@ -256,8 +262,20 @@ impl ggez::event::EventHandler for MainState {
 			);
 		}
 
+		// drow enemy circle
+		for act in &mut self.enemy {
+			let point = act.point;
+			graphics::circle(
+				ctx,
+				graphics::DrawMode::Fill,
+				graphics::Point2::new(point[0],point[1]),
+				10.0,
+				0.1,
+			);
+		}
+
 		graphics::present(ctx);
-	Ok(())
+		Ok(())
 	}
 
 	fn key_down_event(&mut self, ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
