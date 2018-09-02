@@ -222,6 +222,23 @@ impl ggez::event::EventHandler for MainState {
 			}
 			// -------------------------
 
+			// Hit PlayerShots & Enemy----------
+				for enemy in &mut self.enemy {
+					for shot in &mut self.shots {
+						// rr > xx + yy
+						let x = shot.point[0] - enemy.point[0];
+						let y = shot.point[1] - enemy.point[1];
+						let r = shot.bbox_size + enemy.bbox_size;
+
+						let xx = x * x;
+						let yy = y * y;
+						let rr = r * r;
+						if rr > xx + yy {
+							enemy.life = 0.0;
+							shot.life = 0.0;
+						}
+					}
+				}
 			// -------------------------
 
 			// Clear zero_life Enemy, Shot----------
