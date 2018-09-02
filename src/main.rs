@@ -25,6 +25,8 @@ struct Actor {
 	velocity: [f32; 2],
 	// 1秒の移動距離 [x, y]
 	// Shot: [Angle(0.0 <= x < 2.0, 真下が0, 右回り), scalar]
+	bbox_size: f32,
+	// 当たり判定の半径
 	life: f32,
 	// Shot: 1.0と0.0でboolのように使う
 }
@@ -35,6 +37,7 @@ impl Actor {
 			actor_type: ActorType::Player,
 			point: [300.0, 500.0],
 			velocity: [0.0; 2],
+			bbox_size: 5.0,
 			life: 3.0,
 		}
 	}
@@ -43,6 +46,7 @@ impl Actor {
 			actor_type: ActorType::PlShot,
 			point: p_point,
 			velocity: [1.0, 3000.0],
+			bbox_size: 10.0,
 			life: 1.0,
 		}
 	}
@@ -51,6 +55,7 @@ impl Actor {
 			actor_type: ActorType::Enemy,
 			point: point,
 			velocity: velocity,
+			bbox_size: 10.0,
 			life: life,
 		}
 	}
@@ -165,6 +170,7 @@ impl ggez::event::EventHandler for MainState {
 			// 開始からの経過時間を計測
 			let since_start = timer::get_time_since_start(ctx);
 			// println!("{:?}", since_start);
+			// -------------------------
 
 			// Update player point
 			// キーインプット基底ベクトルをInputState値として定める
@@ -181,6 +187,7 @@ impl ggez::event::EventHandler for MainState {
 				self.player.velocity[1] = (s_input.up + s_input.down) * 100.0;
 			}
 			Actor::update_point(&mut self.player, seconds);
+			// -------------------------
 
 			// Update shot state
 			if self.input.shot {
@@ -206,6 +213,7 @@ impl ggez::event::EventHandler for MainState {
 			// println!("");
 			// println!("shot len: {}", self.shots.len());
 			// println!("");
+			// -------------------------
 		}
 		Ok(())
 	}
@@ -230,7 +238,7 @@ impl ggez::event::EventHandler for MainState {
 			graphics::rectangle(
 				ctx,
 				graphics::DrawMode::Fill,
-				graphics::Rect::new(point[0], point[1], 10.0, 20.0),
+				graphics::Rect::new(point[0], point[1], 20.0, 30.0),
 			);
 		}
 
