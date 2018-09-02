@@ -8,8 +8,7 @@
 
 - actor
 	- [ ] 当たり判定を導入
-		- [ ] player, shot, enemyのコンストラクた書き換え
-		- [ ] あっ書き方わかんね
+		- [x] player, shot, enemyのコンストラクた書き換え
 	- player 
 		- [x] プレイヤを円で表示
 		- [x] プレイヤを動かす
@@ -35,9 +34,10 @@
 	- enemy
 		- [x] コンストラクタ作成
 		- [x] MainStateに組み込む
-		- [ ] 円として描写
+		- [x] 円として描写
 		- [x] 時間計測を導入
 			- [x] game counterを導入した
+		- [ ] PlayerShotとEnemyの当たり挙動を書く
 - feald
 	- [ ] プレイ画面を作成
 		- [ ] 色を変える
