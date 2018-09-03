@@ -81,6 +81,32 @@ impl Actor {
 		actor.point[0] += x_vel * dt;
 		actor.point[1] += y_vel * dt;
 	}
+	fn update_point_enemy(actor: &mut Actor, dt: f32) {
+		let mut x_vel = actor.velocity[0];
+		let mut y_vel = actor.velocity[1];
+		let s_width = SCREEN_WIDTH as f32 + 30.0;
+		let s_height = SCREEN_HEIGHT as f32 + 30.0;
+
+		if actor.point[0] < -30.0 && x_vel < 0.0 {
+			x_vel = 0.0;
+			actor.life = 0.0;
+		}
+		if actor.point[0] > s_width && x_vel > 0.0 {
+			x_vel = 0.0;
+			actor.life = 0.0;
+		}
+		if actor.point[1] < -30.0 && y_vel < 0.0 {
+			y_vel = 0.0;
+			actor.life = 0.0;
+		}
+		if actor.point[1] > s_height && y_vel > 0.0 {
+			y_vel = 0.0;
+			actor.life = 0.0;
+		}
+
+		actor.point[0] += x_vel * dt;
+		actor.point[1] += y_vel * dt;
+	}
 	fn update_point_shot(actor: &mut Actor, dt: f32) {
 		use std::f32::consts::PI;
 
@@ -218,7 +244,7 @@ impl ggez::event::EventHandler for MainState {
 				self.enemy.push(Actor::enemy_new([1000.0, 100.0], [-100.0, 30.0], 30.0))
 			}
 			for act in &mut self.enemy {
-				Actor::update_point(act, seconds)
+				Actor::update_point_enemy(act, seconds)
 			}
 			// -------------------------
 
