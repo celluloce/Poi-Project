@@ -221,7 +221,8 @@ impl ggez::event::EventHandler for MainState {
 			// -------------------------
 
 			// Update shot state----------
-			if self.input.shot {
+			if self.input.shot && self.game_count % 3 == 0 {
+				println!("shot: {}", self.game_count);
 				// InputStateのshotがtrueの時、shotをVectorに入れる
 				self.shots.push(Actor::shot_new(self.player.point))
 			}
