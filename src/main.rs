@@ -55,7 +55,7 @@ impl Actor {
 			actor_type: ActorType::Enemy,
 			point: point,
 			velocity: velocity,
-			bbox_size: 10.0,
+			bbox_size: 20.0,
 			life: life,
 		}
 	}

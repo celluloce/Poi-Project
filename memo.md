@@ -9,6 +9,7 @@
 - actor
 	- [x] 当たり判定を導入
 		- [x] player, shot, enemyのコンストラクた書き換え
+	- [x] Enemy当たり判定拡大
 	- player 
 		- [x] プレイヤを円で表示
 		- [x] プレイヤを動かす
