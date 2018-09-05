@@ -73,6 +73,15 @@ impl Actor {
 			life: life,
 		}
 	}
+	fn enemy_shot_new(point: [f32; 2], velocity: [f32; 2]) -> Actor {
+		Actor {
+			actor_type: ActorType::EnShot,
+			point: point,
+			velocity: velocity,
+			bbox_size: 10.0,
+			life: 1.0,
+		}
+	}
 	fn update_point(actor: &mut Actor, dt: f32) {
 		// 現時点でプレイヤのみ
 		let mut x_vel = actor.velocity[0];
