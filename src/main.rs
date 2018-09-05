@@ -9,6 +9,20 @@ use ggez::conf;
 const SCREEN_WIDTH: u32 = 1280;
 const SCREEN_HEIGHT: u32 = 960;
 
+const STAGE_UP: u32 = 30;
+const STAGE_DOWN: u32 = 930;
+const STAGE_LEFT: u32 = 60;
+const STAGE_RIGHT: u32 = 830;
+// +---+-------+-----+ 0px
+// |   |       |     |
+// +---+-------+-----+ 30px
+// |   |       |     |
+// |   |       |     |
+// +---+-------+-----+ 930px
+// +---+-------+-----+ 960px
+// 0px 60px   830px 1280px
+
+
 #[derive(Debug)]
 enum ActorType {
 	Player,
@@ -60,21 +74,25 @@ impl Actor {
 		}
 	}
 	fn update_point(actor: &mut Actor, dt: f32) {
+		// 現時点でプレイヤのみ
 		let mut x_vel = actor.velocity[0];
 		let mut y_vel = actor.velocity[1];
-		let s_width = SCREEN_WIDTH as f32;
-		let s_height = SCREEN_HEIGHT as f32;
 
-		if actor.point[0] < 0.0 && x_vel < 0.0 {
+		let s_up = STAGE_UP as f32;
+		let s_down = STAGE_DOWN as f32;
+		let s_left = STAGE_LEFT as f32;
+		let s_right = STAGE_RIGHT as f32;
+
+		if actor.point[0] < s_left && x_vel < 0.0 {
 			x_vel = 0.0;
 		}
-		if actor.point[0] > s_width && x_vel > 0.0 {
+		if actor.point[0] > s_right && x_vel > 0.0 {
 			x_vel = 0.0;
 		}
-		if actor.point[1] < 0.0 && y_vel < 0.0 {
+		if actor.point[1] < s_up && y_vel < 0.0 {
 			y_vel = 0.0;
 		}
-		if actor.point[1] > s_height && y_vel > 0.0 {
+		if actor.point[1] > s_down && y_vel > 0.0 {
 			y_vel = 0.0;
 		}
 
@@ -84,22 +102,25 @@ impl Actor {
 	fn update_point_enemy(actor: &mut Actor, dt: f32) {
 		let mut x_vel = actor.velocity[0];
 		let mut y_vel = actor.velocity[1];
-		let s_width = SCREEN_WIDTH as f32 + 30.0;
-		let s_height = SCREEN_HEIGHT as f32 + 30.0;
 
-		if actor.point[0] < -30.0 && x_vel < 0.0 {
+		let s_up = STAGE_UP as f32 - 30.0;
+		let s_down = STAGE_DOWN as f32 + 30.0;
+		let s_left = STAGE_LEFT as f32 - 30.0;
+		let s_right = STAGE_RIGHT as f32 + 30.0;
+
+		if actor.point[0] < s_left && x_vel < 0.0 {
 			x_vel = 0.0;
 			actor.life = 0.0;
 		}
-		if actor.point[0] > s_width && x_vel > 0.0 {
+		if actor.point[0] > s_right && x_vel > 0.0 {
 			x_vel = 0.0;
 			actor.life = 0.0;
 		}
-		if actor.point[1] < -30.0 && y_vel < 0.0 {
+		if actor.point[1] < s_up && y_vel < 0.0 {
 			y_vel = 0.0;
 			actor.life = 0.0;
 		}
-		if actor.point[1] > s_height && y_vel > 0.0 {
+		if actor.point[1] > s_down && y_vel > 0.0 {
 			y_vel = 0.0;
 			actor.life = 0.0;
 		}
@@ -110,27 +131,29 @@ impl Actor {
 	fn update_point_shot(actor: &mut Actor, dt: f32) {
 		use std::f32::consts::PI;
 
-		let s_width = SCREEN_WIDTH as f32 + 30.0;
-		let s_height = SCREEN_HEIGHT as f32 + 30.0;
+		let s_up = STAGE_UP as f32 - 30.0;
+		let s_down = STAGE_DOWN as f32 + 30.0;
+		let s_left = STAGE_LEFT as f32 - 30.0;
+		let s_right = STAGE_RIGHT as f32 + 30.0;
 
 		let scalar = actor.velocity[1];
 		let ragian = actor.velocity[0] * PI;
 		let mut x_vel = scalar * ragian.sin();
 		let mut y_vel = scalar * ragian.cos();
 
-		if actor.point[0] < -30.0 && x_vel < 0.0 {
+		if actor.point[0] < s_left && x_vel < 0.0 {
 			x_vel = 0.0;
 			actor.life = 0.0;
 		}
-		if actor.point[0] > s_width && x_vel > 0.0 {
+		if actor.point[0] > s_right && x_vel > 0.0 {
 			x_vel = 0.0;
 			actor.life = 0.0;
 		}
-		if actor.point[1] < -30.0 && y_vel < 0.0 {
+		if actor.point[1] < s_up && y_vel < 0.0 {
 			y_vel = 0.0;
 			actor.life = 0.0;
 		}
-		if actor.point[1] > s_height && y_vel > 0.0 {
+		if actor.point[1] > s_down && y_vel > 0.0 {
 			y_vel = 0.0;
 			actor.life = 0.0;
 		}
