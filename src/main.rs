@@ -55,7 +55,7 @@ impl Actor {
 			life: 3.0,
 		}
 	}
-	fn shot_new(p_point: [f32; 2]) -> Actor {
+	fn player_shot_new(p_point: [f32; 2]) -> Actor {
 		Actor {
 			actor_type: ActorType::PlShot,
 			point: p_point,
@@ -247,7 +247,7 @@ impl ggez::event::EventHandler for MainState {
 			if self.input.shot && self.game_count % 3 == 0 {
 				println!("shot: {}", self.game_count);
 				// InputStateのshotがtrueの時、shotをVectorに入れる
-				self.shots.push(Actor::shot_new(self.player.point))
+				self.shots.push(Actor::player_shot_new(self.player.point))
 			}
 			for act in &mut self.shots {
 				Actor::update_point_shot(act, seconds);
