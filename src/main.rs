@@ -283,6 +283,25 @@ impl ggez::event::EventHandler for MainState {
 			}
 			// -------------------------
 
+			// Update Enemy Shot ----------
+			if self.game_count % 50 == 0 {
+				for enemy in &self.enemy {
+					for c in 0..5 {
+						let en_point = enemy.point;
+						let shot_vel = {
+							let shot_scal = 100.0;
+							let angle = (c as f32) / 3.0;
+							[angle, shot_scal]
+						};
+						self.enshots.push(Actor::enemy_shot_new(en_point, shot_vel));
+					}
+				}
+			}
+			for act in &mut self.enshots {
+				Actor::update_point_shot(act, seconds)
+			}
+			// -------------------------
+
 			// Hit PlayerShots & Enemy----------
 				for enemy in &mut self.enemy {
 					for shot in &mut self.shots {
@@ -342,6 +361,18 @@ impl ggez::event::EventHandler for MainState {
 
 		// drow enemy circle
 		for act in &mut self.enemy {
+			let point = act.point;
+			graphics::circle(
+				ctx,
+				graphics::DrawMode::Fill,
+				graphics::Point2::new(point[0],point[1]),
+				10.0,
+				0.1,
+			);
+		}
+
+		// drow enshots circle
+		for act in &mut self.enshots {
 			let point = act.point;
 			graphics::circle(
 				ctx,
