@@ -212,7 +212,7 @@ impl MainState {
 			player: Actor::player_new(),
 			shots: Vec::with_capacity(50),
 			enemy: Vec::with_capacity(30),
-			enshots: Vec::with_capasity(100),
+			enshots: Vec::with_capacity(100),
 			input: InputState::new(),
 			game_count: 0,
 		};
