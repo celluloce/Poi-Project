@@ -256,7 +256,7 @@ impl ggez::event::EventHandler for MainState {
 
 			// Update shot state----------
 			if self.input.shot && self.game_count % 3 == 0 {
-				println!("shot: {}", self.game_count);
+				// println!("shot: {}", self.game_count);
 				// InputStateのshotがtrueの時、shotをVectorに入れる
 				self.shots.push(Actor::player_shot_new(self.player.point))
 			}
@@ -302,6 +302,25 @@ impl ggez::event::EventHandler for MainState {
 			}
 			// -------------------------
 
+			// Hit EnemyShots & Player----------
+				for enshot in &mut self.enshots {
+						// rr > xx + yy
+						let player = &mut self.player;
+						let x = player.point[0] - enshot.point[0];
+						let y = player.point[1] - enshot.point[1];
+						let r = player.bbox_size + enshot.bbox_size;
+
+						let xx = x * x;
+						let yy = y * y;
+						let rr = r * r;
+						if rr > xx + yy {
+							enshot.life = 0.0;
+							player.life -= 1.0;
+							println!("{}", player.life);
+						}
+				}
+			// -------------------------
+
 			// Hit PlayerShots & Enemy----------
 				for enemy in &mut self.enemy {
 					for shot in &mut self.shots {
@@ -324,11 +343,12 @@ impl ggez::event::EventHandler for MainState {
 			// Clear zero_life Enemy, Shot----------
 			self.shots.retain(|s| s.life > 0.0);
 			self.enemy.retain(|s| s.life > 0.0);
+			self.enshots.retain(|s| s.life > 0.0);
 			// -------------------------
 
 			// Update game counter----------
 			self.game_count += 1;
-			println!("{}", self.game_count);
+			// println!("{}", self.game_count);
 			// -------------------------
 
 		}
