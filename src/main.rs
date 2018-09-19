@@ -6,6 +6,8 @@ use ggez::timer;
 use ggez::{Context, ContextBuilder, GameResult};
 use ggez::conf;
 
+use std::{path, env};
+
 const SCREEN_WIDTH: u32 = 1280;
 const SCREEN_HEIGHT: u32 = 960;
 
@@ -402,6 +404,13 @@ impl ggez::event::EventHandler for MainState {
 				0.1,
 			);
 		}
+		// draw frame
+		let drawable = graphics::Image::new(ctx, "/Frame.png").unwrap();
+		let params = graphics::DrawParam {
+			..Default::default()
+		};
+		graphics::draw_ex(ctx, &drawable, params);
+
 
 		graphics::present(ctx);
 		Ok(())
@@ -461,7 +470,17 @@ pub fn main() {
 		.window_setup(conf::WindowSetup::default().title("poi-project"))
 		.window_mode(conf::WindowMode::default().dimensions(SCREEN_WIDTH, SCREEN_HEIGHT));
 
+	if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
+		let mut path = path::PathBuf::from(manifest_dir);
+		path.push("resources");
+		cb = cb.add_resource_path(path);
+	} else {
+		println!("Not building from cargo?  Ok.");
+	}
+
 	let ctx = &mut cb.build().unwrap();
+
+	ctx.print_resource_stats();
 
 	match MainState::new(ctx) {
 		Err(e) => {
