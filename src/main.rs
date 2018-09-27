@@ -411,9 +411,16 @@ impl ggez::event::EventHandler for MainState {
 		};
 		graphics::draw_ex(ctx, &drawable, params);
 
+		// Print score
+		let score_str = format!("Score: {}", 30);
+		let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 18).unwrap();
+		let score_display = graphics::Text::new(ctx, &score_str, &font).unwrap();
+		let score_point = graphics::Point2::new(900.0, 100.0);
+		graphics::draw(ctx, &score_display, score_point, 0.0).unwrap();
 
 		graphics::present(ctx);
 		Ok(())
+
 	}
 
 	fn key_down_event(&mut self, ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
