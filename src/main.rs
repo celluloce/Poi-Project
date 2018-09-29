@@ -25,7 +25,7 @@ const STAGE_RIGHT: u32 = 830;
 // 0px 60px   830px 1280px
 
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 enum ActorType {
 	Player,
 	Enemy,
@@ -85,60 +85,46 @@ impl Actor {
 		}
 	}
 	fn update_point(actor: &mut Actor, dt: f32) {
-		// 現時点でプレイヤのみ
 		let mut x_vel = actor.velocity[0];
 		let mut y_vel = actor.velocity[1];
 
-		let s_up = STAGE_UP as f32;
-		let s_down = STAGE_DOWN as f32;
-		let s_left = STAGE_LEFT as f32;
-		let s_right = STAGE_RIGHT as f32;
+		let mut window_end = 0.0;
+		let mut enemy_dead = false;
+
+		if actor.actor_type == ActorType::Enemy {
+			window_end = 30.0;
+		}
+
+		let s_up = STAGE_UP as f32 - window_end;
+		let s_down = STAGE_DOWN as f32 + window_end;
+		let s_left = STAGE_LEFT as f32 - window_end;
+		let s_right = STAGE_RIGHT as f32 + window_end;
 
 		if actor.point[0] < s_left && x_vel < 0.0 {
 			x_vel = 0.0;
+			enemy_dead = true;
 		}
 		if actor.point[0] > s_right && x_vel > 0.0 {
 			x_vel = 0.0;
+			enemy_dead = true;
 		}
 		if actor.point[1] < s_up && y_vel < 0.0 {
 			y_vel = 0.0;
+			enemy_dead = true;
 		}
 		if actor.point[1] > s_down && y_vel > 0.0 {
 			y_vel = 0.0;
+			enemy_dead = true;
 		}
 
-		actor.point[0] += x_vel * dt;
-		actor.point[1] += y_vel * dt;
-	}
-	fn update_point_enemy(actor: &mut Actor, dt: f32) {
-		let mut x_vel = actor.velocity[0];
-		let mut y_vel = actor.velocity[1];
-
-		let s_up = STAGE_UP as f32 - 30.0;
-		let s_down = STAGE_DOWN as f32 + 30.0;
-		let s_left = STAGE_LEFT as f32 - 30.0;
-		let s_right = STAGE_RIGHT as f32 + 30.0;
-
-		if actor.point[0] < s_left && x_vel < 0.0 {
-			x_vel = 0.0;
-			actor.life = 0.0;
-		}
-		if actor.point[0] > s_right && x_vel > 0.0 {
-			x_vel = 0.0;
-			actor.life = 0.0;
-		}
-		if actor.point[1] < s_up && y_vel < 0.0 {
-			y_vel = 0.0;
-			actor.life = 0.0;
-		}
-		if actor.point[1] > s_down && y_vel > 0.0 {
-			y_vel = 0.0;
+		if enemy_dead {
 			actor.life = 0.0;
 		}
 
 		actor.point[0] += x_vel * dt;
 		actor.point[1] += y_vel * dt;
 	}
+
 	fn update_point_shot(actor: &mut Actor, dt: f32) {
 		use std::f32::consts::PI;
 
@@ -283,7 +269,7 @@ impl ggez::event::EventHandler for MainState {
 				self.enemy.push(Actor::enemy_new([1000.0, 100.0], [-100.0, 30.0], 30.0))
 			}
 			for act in &mut self.enemy {
-				Actor::update_point_enemy(act, seconds)
+				Actor::update_point(act, seconds)
 			}
 			// -------------------------
 
