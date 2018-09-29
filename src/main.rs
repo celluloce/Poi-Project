@@ -206,6 +206,7 @@ struct MainState {
 	enshots: Vec<Actor>,
 	input: InputState,
 	game_count: u32,
+	score: u32,
 }
 
 impl MainState {
@@ -217,6 +218,7 @@ impl MainState {
 			enshots: Vec::with_capacity(100),
 			input: InputState::new(),
 			game_count: 0,
+			score: 0,
 		};
 
 		Ok(s)
@@ -335,8 +337,11 @@ impl ggez::event::EventHandler for MainState {
 						let yy = y * y;
 						let rr = r * r;
 						if rr > xx + yy {
-							enemy.life = 0.0;
+							enemy.life -= shot.life;
 							shot.life = 0.0;
+							if enemy.life <= 0.0 {
+								self.score += 30;
+							}
 						}
 					}
 				}
@@ -412,7 +417,7 @@ impl ggez::event::EventHandler for MainState {
 		graphics::draw_ex(ctx, &drawable, params);
 
 		// Print score
-		let score_str = format!("Score: {}", 30);
+		let score_str = format!("Score: {}", self.score);
 		let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 18).unwrap();
 		let score_display = graphics::Text::new(ctx, &score_str, &font).unwrap();
 		let score_point = graphics::Point2::new(900.0, 100.0);
