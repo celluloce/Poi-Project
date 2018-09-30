@@ -62,7 +62,7 @@ impl Actor {
 			actor_type: ActorType::PlShot,
 			point: p_point,
 			velocity: [1.0, 3000.0],
-			bbox_size: 10.0,
+			bbox_size: 8.0,
 			life: 1.0,
 		}
 	}
@@ -248,7 +248,11 @@ impl ggez::event::EventHandler for MainState {
 			if self.input.shot && self.game_count % 3 == 0 {
 				// println!("shot: {}", self.game_count);
 				// InputStateのshotがtrueの時、shotをVectorに入れる
-				self.shots.push(Actor::player_shot_new(self.player.point))
+				let mut pp = self.player.point;
+				pp[0] += 20.0;
+				self.shots.push(Actor::player_shot_new(pp));
+				pp[0] -= 40.0;
+				self.shots.push(Actor::player_shot_new(pp));
 			}
 			for act in &mut self.shots {
 				Actor::update_point_shot(act, seconds);
@@ -265,7 +269,7 @@ impl ggez::event::EventHandler for MainState {
 			// -------------------------
 
 			// Update Enemy State----------
-			if self.game_count % 30 == 0 && self.game_count < 300{
+			if self.game_count % 100 == 0 && self.game_count < 300{
 				self.enemy.push(Actor::enemy_new([1000.0, 100.0], [-100.0, 30.0], 30.0))
 			}
 			for act in &mut self.enemy {
@@ -368,7 +372,7 @@ impl ggez::event::EventHandler for MainState {
 			graphics::rectangle(
 				ctx,
 				graphics::DrawMode::Fill,
-				graphics::Rect::new(point[0], point[1], 20.0, 30.0),
+				graphics::Rect::new(point[0] - 8.0, point[1] - 15.0, 16.0, 30.0),
 			);
 		}
 
@@ -379,7 +383,7 @@ impl ggez::event::EventHandler for MainState {
 				ctx,
 				graphics::DrawMode::Fill,
 				graphics::Point2::new(point[0],point[1]),
-				10.0,
+				20.0,
 				0.1,
 			);
 		}
