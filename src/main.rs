@@ -123,7 +123,7 @@ impl Actor {
 			enemy_dead = true;
 		}
 
-		if enemy_dead {
+		if enemy_dead && actor.actor_type == ActorType::Enemy {
 			actor.life = 0.0;
 		}
 
