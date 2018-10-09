@@ -35,6 +35,7 @@ enum ActorType {
 
 #[derive(Debug, PartialEq)]
 enum WindowState {
+	Title,
 	Gaming,
 	GameOver,
 }
@@ -205,7 +206,7 @@ struct MainState {
 impl MainState {
 	fn new(ctx: &mut Context) -> GameResult<MainState> {
 		let s = MainState{
-			window_state: WindowState::Gaming,
+			window_state: WindowState::Title,
 			player: Actor::player_new(),
 			shots: Vec::with_capacity(50),
 			enemy: Vec::with_capacity(30),
@@ -228,15 +229,27 @@ impl ggez::event::EventHandler for MainState {
 		const FPS: u32 = 60;
 		let seconds = 1.0 / FPS as f32;
 
-		// GameOverの時、Updateしない
-		if self.player.life <= 0.0 {
-			self.window_state = WindowState::GameOver;
-		}
-		if self.window_state == WindowState::GameOver {
-			return Ok(());
-		}
-
 		while timer::check_update_time(ctx, FPS) {
+
+			// PlayerLifeがゼロの時、WindowStateがGameoverになる
+			if self.player.life <= 0.0 {
+				self.window_state = WindowState::GameOver;
+			}
+
+			// WindowStateの分岐----------
+			match self.window_state {
+				WindowState::Title => {
+					if self.input.shot {
+						self.window_state = WindowState::Gaming;
+					}
+					continue
+				},
+				WindowState::Gaming => (),
+				WindowState::GameOver => {
+					continue
+				}
+			}
+			// --------------------
 
 			// 開始からの経過時間を計測----------
 			let since_start = timer::get_time_since_start(ctx);
@@ -373,6 +386,18 @@ impl ggez::event::EventHandler for MainState {
 
 		let point = self.player.point;
 
+		// match Window State
+		match self.window_state {
+			WindowState::Title => println!("Title, Press Z key"),
+			WindowState::Gaming => (),
+			WindowState::GameOver => {
+				let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 30).unwrap();
+				let gameover_display = graphics::Text::new(ctx, "GameOver", &font).unwrap();
+				let display_point = graphics::Point2::new(400.0, 300.0);
+				graphics::draw(ctx, &gameover_display, display_point, 0.0).unwrap();
+			}
+		}
+
 		// drow player circle
 		graphics::circle(
 			ctx,
@@ -429,13 +454,6 @@ impl ggez::event::EventHandler for MainState {
 		let score_point = graphics::Point2::new(900.0, 100.0);
 		graphics::draw(ctx, &score_display, score_point, 0.0).unwrap();
 
-		// Print GameOver when gameover
-		if self.window_state == WindowState::GameOver {
-			let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 30).unwrap();
-			let gameover_display = graphics::Text::new(ctx, "GameOver", &font).unwrap();
-			let display_point = graphics::Point2::new(400.0, 300.0);
-			graphics::draw(ctx, &gameover_display, display_point, 0.0).unwrap();
-		}
 
 		graphics::present(ctx);
 		Ok(())
