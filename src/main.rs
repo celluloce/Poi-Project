@@ -339,7 +339,6 @@ impl ggez::event::EventHandler for MainState {
 						if rr > xx + yy {
 							enshot.life = 0.0;
 							player.life -= 1.0;
-							println!("{}", player.life);
 						}
 				}
 			// -------------------------
@@ -471,11 +470,17 @@ impl ggez::event::EventHandler for MainState {
 		graphics::draw_ex(ctx, &drawable, params);
 
 		// Print score
-		let score_str = format!("Score: {}", self.score);
+		let display_str = format!("Score: {}", self.score);
 		let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 18).unwrap();
-		let score_display = graphics::Text::new(ctx, &score_str, &font).unwrap();
-		let score_point = graphics::Point2::new(900.0, 100.0);
-		graphics::draw(ctx, &score_display, score_point, 0.0).unwrap();
+		let display = graphics::Text::new(ctx, &display_str, &font).unwrap();
+		let display_point = graphics::Point2::new(900.0, 100.0);
+		graphics::draw(ctx, &display, display_point, 0.0).unwrap();
+
+		// Print Player life
+		let display_str = format!("Life: {}", self.player.life as usize);
+		let display = graphics::Text::new(ctx, &display_str, &font).unwrap();
+		let display_point = graphics::Point2::new(900.0, 150.0);
+		graphics::draw(ctx, &display, display_point, 0.0).unwrap();
 
 		graphics::present(ctx);
 		Ok(())
