@@ -388,7 +388,30 @@ impl ggez::event::EventHandler for MainState {
 
 		// match Window State
 		match self.window_state {
-			WindowState::Title => println!("Title, Press Z key"),
+			WindowState::Title => {
+				// Print "poi-Project"
+				let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 100).unwrap();
+				let display = graphics::Text::new(ctx, "poi-Project", &font).unwrap();
+				let display_point = graphics::Point2::new(300.0, 300.0);
+				graphics::draw(ctx, &display, display_point, 0.0).unwrap();
+
+				// Write "-"
+				graphics::rectangle(
+					ctx,
+					graphics::DrawMode::Fill,
+					graphics::Rect::new(495.0, 380.0, 40.0, 10.0),
+				);
+
+				// Print "press Z key"
+				let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 30).unwrap();
+				let display = graphics::Text::new(ctx, "Please press Z key", &font).unwrap();
+				let display_point = graphics::Point2::new(400.0, 600.0);
+				graphics::draw(ctx, &display, display_point, 0.0).unwrap();
+
+				// Skip other code
+				graphics::present(ctx);
+				return Ok(());
+			},
 			WindowState::Gaming => (),
 			WindowState::GameOver => {
 				let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 30).unwrap();
@@ -453,7 +476,6 @@ impl ggez::event::EventHandler for MainState {
 		let score_display = graphics::Text::new(ctx, &score_str, &font).unwrap();
 		let score_point = graphics::Point2::new(900.0, 100.0);
 		graphics::draw(ctx, &score_display, score_point, 0.0).unwrap();
-
 
 		graphics::present(ctx);
 		Ok(())
