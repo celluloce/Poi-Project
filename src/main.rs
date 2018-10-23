@@ -192,6 +192,20 @@ impl InputState {
 }
 
 #[derive(Debug)]
+struct Assets {
+	frame_img: graphics::Image,
+}
+
+impl Assets {
+	fn new(ctx: &mut Context) -> GameResult<Assets> {
+		let frame_img = graphics::Image::new(ctx, "/Frame.png").unwrap();
+		Ok(Assets {
+			frame_img,
+		})
+	}
+}
+
+#[derive(Debug)]
 struct MainState {
 	window_state: WindowState,
 	player: Actor,
@@ -200,6 +214,7 @@ struct MainState {
 	enshots: Vec<Actor>,
 	input: InputState,
 	game_count: u32,
+	assets: Assets,
 	score: u32,
 }
 
@@ -213,6 +228,7 @@ impl MainState {
 			enshots: Vec::with_capacity(100),
 			input: InputState::new(),
 			game_count: 0,
+			assets: Assets::new(ctx).unwrap(),
 			score: 0,
 		};
 
@@ -229,7 +245,16 @@ impl ggez::event::EventHandler for MainState {
 		const FPS: u32 = 60;
 		let seconds = 1.0 / FPS as f32;
 
+		//println!("");
+		//println!("{:?}", timer::duration_to_f64(timer::get_delta(ctx)));
+		//println!("{:?}", timer::duration_to_f64(timer::get_average_delta(ctx)));
+		//println!("{:?}", timer::duration_to_f64(timer::get_remaining_update_time(ctx)));
+		//println!("{:?}", timer::get_fps(ctx));
+		let mut l_count = 0;
+
 		while timer::check_update_time(ctx, FPS) {
+			println!("{}", l_count);
+			l_count += 1;
 
 			// PlayerLifeがゼロの時、WindowStateがGameoverになる
 			if self.player.life <= 0.0 {
@@ -462,12 +487,13 @@ impl ggez::event::EventHandler for MainState {
 				0.1,
 			);
 		}
+
 		// draw frame
-		let drawable = graphics::Image::new(ctx, "/Frame.png").unwrap();
+		let drawable = &self.assets.frame_img;
 		let params = graphics::DrawParam {
 			..Default::default()
 		};
-		graphics::draw_ex(ctx, &drawable, params);
+		graphics::draw_ex(ctx, drawable, params);
 
 		// Print score
 		let display_str = format!("Score: {}", self.score);
