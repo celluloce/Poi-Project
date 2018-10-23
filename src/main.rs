@@ -1,3 +1,7 @@
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
+extern crate serde;
 extern crate ggez;
 
 use ggez::graphics;
@@ -6,7 +10,11 @@ use ggez::timer;
 use ggez::{Context, ContextBuilder, GameResult};
 use ggez::conf;
 
+use serde_json::Value;
+
+use std::fs::File;
 use std::{path, env};
+use std::io::Read;
 
 const SCREEN_WIDTH: u32 = 1280;
 const SCREEN_HEIGHT: u32 = 960;
@@ -48,10 +56,16 @@ struct Actor {
 	velocity: [f32; 2],
 	// 1秒の移動距離 [x, y]
 	// Shot: [Angle(0.0 <= x < 2.0, 真下が0, 右回り), scalar]
+	accel: [f32; 2],
+	// 加速度
+	// Shot: Anglの値とスカラの値がそれぞれ加速（ベクトル？知らん）
 	bbox_size: f32,
 	// 当たり判定の半径
 	life: f32,
 	// Shot: 1.0と0.0でboolのように使う
+	moving: Vec<MovingElement>,
+	// 動作の記録
+	// Playerは多分使わない
 }
 
 impl Actor {
@@ -60,8 +74,10 @@ impl Actor {
 			actor_type: ActorType::Player,
 			point: [300.0, 500.0],
 			velocity: [0.0; 2],
+			accel: [0.0, 0.0],
 			bbox_size: 5.0,
 			life: 3.0,
+			moving: Vec::new(),
 		}
 	}
 	fn player_shot_new(p_point: [f32; 2]) -> Actor {
@@ -69,26 +85,32 @@ impl Actor {
 			actor_type: ActorType::PlShot,
 			point: p_point,
 			velocity: [1.0, 3000.0],
+			accel: [0.0, 0.0],
 			bbox_size: 8.0,
 			life: 1.0,
+			moving: Vec::new(),
 		}
 	}
-	fn enemy_new(point: [f32; 2], velocity: [f32; 2], life: f32) -> Actor {
+	fn enemy_s_new(point: [f32; 2], life: f32, moving: Vec<MovingElement>) -> Actor {
 		Actor {
 			actor_type: ActorType::Enemy,
 			point: point,
-			velocity: velocity,
+			velocity: [0.0; 2],
+			accel: [0.0; 2],
 			bbox_size: 20.0,
 			life: life,
+			moving: moving,
 		}
 	}
 	fn enemy_shot_new(point: [f32; 2], velocity: [f32; 2]) -> Actor {
 		Actor {
 			actor_type: ActorType::EnShot,
 			point: point,
+			accel: [0.0; 2],
 			velocity: velocity,
 			bbox_size: 10.0,
 			life: 1.0,
+			moving: Vec::new(),
 		}
 	}
 	fn update_point(actor: &mut Actor, dt: f32) {
@@ -205,6 +227,41 @@ impl Assets {
 	}
 }
 
+// Jsonから取り込んだステージのデータ
+#[derive(Deserialize, Debug, Clone, PartialEq)]
+pub struct Stage {
+	count: u32,
+	// イベントを起こすカウント数
+	char_type: String,
+	// キャラクタの種類
+	number_class: [u32; 2],
+	// [繰り返す回数, 間隔カウント]
+	point: [f32; 2],
+	// 初期位置 [x, y]
+	life: f32,
+	// 初期life
+	moving: Vec<MovingElement>,
+	// 移動データ
+
+}
+
+// Jsonから取り込んだ移動データ
+#[derive(Deserialize, Debug, Clone, PartialEq)]
+pub struct MovingElement {
+	count: u32,
+	// イベントを起こすカウント数
+	// Stage.countからの相対値ではなく絶対値
+	velocity: [f32; 2],
+	// 移動速度 [x, y]
+	// Shot: [角度, スカラ値]
+	accel: [f32; 2],
+	// 加速度 [x, y]
+	// Shot: [角度の値, スカラ値] （ベクトル演算ではない）
+	shot_type: String,
+	// 放つShotの種類
+	// Shotは多分使わない
+}
+
 #[derive(Debug)]
 struct MainState {
 	window_state: WindowState,
@@ -212,6 +269,7 @@ struct MainState {
 	shots: Vec<Actor>,
 	enemy: Vec<Actor>,
 	enshots: Vec<Actor>,
+	stage: Vec<Stage>,
 	input: InputState,
 	game_count: u32,
 	assets: Assets,
@@ -220,12 +278,25 @@ struct MainState {
 
 impl MainState {
 	fn new(ctx: &mut Context) -> GameResult<MainState> {
+
+		// JsonFileからDateを取得, 構造体型に変換
+		let mut f = File::open("resources/story.json").expect("open json file");
+		let mut s = String::new();
+		f.read_to_string(&mut s).expect("read json to string");
+
+		let v: Value = serde_json::from_str(&s).expect("serde json from str");
+		let sv: &Value = &v["stage1"];
+		let mut stage1: Vec<Stage> = serde_json::from_value(sv.to_owned()).expect("serde json from value");
+		println!("{:?}", stage1);
+		// ---------------------
+
 		let s = MainState{
 			window_state: WindowState::Title,
 			player: Actor::player_new(),
 			shots: Vec::with_capacity(50),
 			enemy: Vec::with_capacity(30),
 			enshots: Vec::with_capacity(100),
+			stage: stage1,
 			input: InputState::new(),
 			game_count: 0,
 			assets: Assets::new(ctx).unwrap(),
@@ -250,11 +321,8 @@ impl ggez::event::EventHandler for MainState {
 		//println!("{:?}", timer::duration_to_f64(timer::get_average_delta(ctx)));
 		//println!("{:?}", timer::duration_to_f64(timer::get_remaining_update_time(ctx)));
 		//println!("{:?}", timer::get_fps(ctx));
-		let mut l_count = 0;
 
 		while timer::check_update_time(ctx, FPS) {
-			println!("{}", l_count);
-			l_count += 1;
 
 			// PlayerLifeがゼロの時、WindowStateがGameoverになる
 			if self.player.life <= 0.0 {
@@ -322,14 +390,42 @@ impl ggez::event::EventHandler for MainState {
 			// println!("");
 			// -------------------------
 
-			// Update Enemy State----------
-			if self.game_count % 100 == 0 && self.game_count < 300{
-				self.enemy.push(Actor::enemy_new([1000.0, 100.0], [-100.0, 30.0], 30.0))
+			// Jsonから取得したデータから、Enemyを生成
+			for i in 0..self.stage.len() {
+				let en_date = self.stage[i].clone();
+				if en_date.count == self.game_count {
+					let p = [en_date.point[0], en_date.point[1]];
+					let l = en_date.life;
+					let m = en_date.moving.clone();
+					self.enemy.push(Actor::enemy_s_new(p, l, m));
+
+					if en_date.number_class[0] > 0 {
+						let add_count = en_date.number_class[1];
+						self.stage[i].count += add_count;
+						self.stage[i].number_class[0] -= 1;
+						for j in 0..en_date.moving.len() {
+							self.stage[i].moving[j].count += add_count;
+						}
+					}
+				}
 			}
-			for act in &mut self.enemy {
-				Actor::update_point(act, seconds)
+			self.stage.retain(|c| c.number_class[0] >= 0);
+			// --------------------
+
+			// Jsonから取得したデータから、Enemyの動作を書き換え
+			// その後位置の更新
+			for e in &mut self.enemy {
+				for i in 0..e.moving.len() {
+					if e.moving[i].count == self.game_count {
+						println!("{}", self.game_count);
+						e.velocity = e.moving[i].velocity;
+						e.accel = e.moving[i].accel;
+					}
+
+				}
+				Actor::update_point(e, seconds)
 			}
-			// -------------------------
+			//-------------------------
 
 			// Update Enemy Shot ----------
 			if self.game_count % 50 == 0 {

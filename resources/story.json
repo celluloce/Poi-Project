@@ -1,0 +1,26 @@
+{
+	"version": "????",
+	"stage1": [
+		{
+			"count": 60,
+			"char_type": "s",
+			"number_class": [5, 20],
+			"point": [700.0, 10.0],
+			"life": 2.0,
+			"moving": [
+				{
+					"count": 60,
+					"velocity": [0.0, 100.0],
+					"accel": [0.0, 0.0],
+					"shot_type": "six"
+				},
+				{
+					"count": 200,
+					"velocity": [-200.0, 100.0],
+					"accel": [10.0, -110.0],
+					"shot_type": "none"
+				}
+			]
+		}
+	]
+}
