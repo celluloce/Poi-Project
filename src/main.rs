@@ -287,7 +287,18 @@ impl MainState {
 		let v: Value = serde_json::from_str(&s).expect("serde json from str");
 		let sv: &Value = &v["stage1"];
 		let mut stage1: Vec<Stage> = serde_json::from_value(sv.to_owned()).expect("serde json from value");
+
 		println!("{:?}", stage1);
+		// ---------------------
+
+		// moving countにstage countを加算
+		// Jsonが書きやすくなる
+			for stage in &mut stage1 {
+				for moving in &mut stage.moving {
+					moving.count += stage.count;
+					println!("{:?}", moving);
+				}
+			}
 		// ---------------------
 
 		let s = MainState{
@@ -428,22 +439,22 @@ impl ggez::event::EventHandler for MainState {
 			//-------------------------
 
 			// Update Enemy Shot ----------
-			if self.game_count % 50 == 0 {
-				for enemy in &self.enemy {
-					for c in 0..5 {
-						let en_point = enemy.point;
-						let shot_vel = {
-							let shot_scal = 100.0;
-							let angle = (c as f32) / 3.0;
-							[angle, shot_scal]
-						};
-						self.enshots.push(Actor::enemy_shot_new(en_point, shot_vel));
-					}
-				}
-			}
-			for act in &mut self.enshots {
-				Actor::update_point_shot(act, seconds)
-			}
+			// if self.game_count % 50 == 0 {
+			// 	for enemy in &self.enemy {
+			// 		for c in 0..5 {
+			// 			let en_point = enemy.point;
+			// 			let shot_vel = {
+			// 				let shot_scal = 100.0;
+			// 				let angle = (c as f32) / 3.0;
+			// 				[angle, shot_scal]
+			// 			};
+			// 			self.enshots.push(Actor::enemy_shot_new(en_point, shot_vel));
+			// 		}
+			// 	}
+			// }
+			// for act in &mut self.enshots {
+			// 	Actor::update_point_shot(act, seconds)
+			// }
 			// -------------------------
 
 			// Hit EnemyShots & Player----------
