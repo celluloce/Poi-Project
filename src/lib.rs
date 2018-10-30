@@ -12,7 +12,6 @@ use ggez::conf;
 
 use serde_json::Value;
 
-
 use std::fs::File;
 use std::{path, env};
 use std::io::Read;
@@ -53,7 +52,7 @@ enum WindowState {
 }
 
 #[derive(Debug)]
-struct Actor {
+pub struct Actor {
 	actor_type: ActorType,
 	point: [f32; 2],
 	// 位置 [x, y]
@@ -70,6 +69,9 @@ struct Actor {
 	moving: Vec<MovingElement>,
 	// 動作の記録
 	// Playerは多分使わない
+	memo: String,
+	// メモ用
+	// Enemy: 放つ弾幕の種類を書く
 }
 
 impl Actor {
@@ -82,6 +84,7 @@ impl Actor {
 			bbox_size: 5.0,
 			life: 3.0,
 			moving: Vec::new(),
+			memo: String::new(),
 		}
 	}
 	fn player_shot_new(p_point: [f32; 2]) -> Actor {
@@ -93,6 +96,7 @@ impl Actor {
 			bbox_size: 8.0,
 			life: 1.0,
 			moving: Vec::new(),
+			memo: String::new(),
 		}
 	}
 	fn enemy_s_new(point: [f32; 2], life: f32, moving: Vec<MovingElement>) -> Actor {
@@ -104,6 +108,7 @@ impl Actor {
 			bbox_size: 20.0,
 			life: life,
 			moving: moving,
+			memo: String::new(),
 		}
 	}
 	fn enemy_shot_new(point: [f32; 2], velocity: [f32; 2]) -> Actor {
@@ -115,6 +120,7 @@ impl Actor {
 			bbox_size: 10.0,
 			life: 1.0,
 			moving: Vec::new(),
+			memo: String::new(),
 		}
 	}
 	fn update_point(actor: &mut Actor, dt: f32) {
@@ -427,55 +433,45 @@ impl ggez::event::EventHandler for MainState {
 			self.stage.retain(|c| c.number_class[0] >= 0);
 			// --------------------
 
-			// Jsonから取得したデータから、Enemyの動作を書き換え
-			// その後位置の更新
+			// Enemyの更新
+			// - Jsonから取得したデータから、Enemyの動作を書き換え
+			// - 弾幕を張る
+			// - 位置の更新
 			for e in &mut self.enemy {
 				for i in 0..e.moving.len() {
 					if e.moving[i].count == self.game_count {
-						println!("{}", self.game_count);
 						e.velocity = e.moving[i].velocity;
 						e.accel = e.moving[i].accel;
+						e.memo = e.moving[i].shot_type.clone();
 					}
-
 				}
-				Actor::update_point(e, seconds)
+
+				match e.memo.as_str() {
+					"six" => shot_type::six(e, &mut self.enshots, self.game_count),
+					_ => println!("fafafa"),
+				}
+
+				Actor::update_point(e, seconds);
 			}
 			//-------------------------
 
-			// Update Enemy Shot ----------
-			// if self.game_count % 50 == 0 {
-			// 	for enemy in &self.enemy {
-			// 		for c in 0..5 {
-			// 			let en_point = enemy.point;
-			// 			let shot_vel = {
-			// 				let shot_scal = 100.0;
-			// 				let angle = (c as f32) / 3.0;
-			// 				[angle, shot_scal]
-			// 			};
-			// 			self.enshots.push(Actor::enemy_shot_new(en_point, shot_vel));
-			// 		}
-			// 	}
-			// }
-			// for act in &mut self.enshots {
-			// 	Actor::update_point_shot(act, seconds)
-			// }
-			// -------------------------
-
 			// Hit EnemyShots & Player----------
 				for enshot in &mut self.enshots {
-						// rr > xx + yy
-						let player = &mut self.player;
-						let x = player.point[0] - enshot.point[0];
-						let y = player.point[1] - enshot.point[1];
-						let r = player.bbox_size + enshot.bbox_size;
+					Actor::update_point_shot(enshot, seconds);
 
-						let xx = x * x;
-						let yy = y * y;
-						let rr = r * r;
-						if rr > xx + yy {
-							enshot.life = 0.0;
-							player.life -= 1.0;
-						}
+					// rr > xx + yy
+					let player = &mut self.player;
+					let x = player.point[0] - enshot.point[0];
+					let y = player.point[1] - enshot.point[1];
+					let r = player.bbox_size + enshot.bbox_size;
+
+					let xx = x * x;
+					let yy = y * y;
+					let rr = r * r;
+					if rr > xx + yy {
+						enshot.life = 0.0;
+						player.life -= 1.0;
+					}
 				}
 			// -------------------------
 

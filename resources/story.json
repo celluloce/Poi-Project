@@ -12,13 +12,13 @@
 					"count": 0,
 					"velocity": [0.0, 100.0],
 					"accel": [0.0, 0.0],
-					"shot_type": "six"
+					"shot_type": "none"
 				},
 				{
 					"count": 100,
 					"velocity": [-200.0, 100.0],
 					"accel": [10.0, -110.0],
-					"shot_type": "none"
+					"shot_type": "six"
 				}
 			]
 		},
@@ -33,13 +33,13 @@
 					"count": 0,
 					"velocity": [0.0, 100.0],
 					"accel": [0.0, 0.0],
-					"shot_type": "six"
+					"shot_type": "none"
 				},
 				{
 					"count": 100,
 					"velocity": [200.0, 100.0],
 					"accel": [10.0, -110.0],
-					"shot_type": "none"
+					"shot_type": "six"
 				}
 			]
 		}
