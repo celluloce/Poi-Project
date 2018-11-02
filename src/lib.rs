@@ -237,7 +237,25 @@ impl Assets {
 	}
 }
 
-// Jsonから取り込んだステージのデータ
+// Jsonから取り込むためだけの構造体
+#[derive(Deserialize, Debug, Clone, PartialEq)]
+struct StageFromJson {
+	count: Vec<u32>,
+	// イベントを起こすカウント数
+	char_type: String,
+	// キャラクタの種類
+	number_class: [u32; 2],
+	// [繰り返す回数, 間隔カウント]
+	point: [f32; 2],
+	// 初期位置 [x, y]
+	life: f32,
+	// 初期life
+	moving: Vec<MovingElement>,
+	// 移動データ
+
+}
+
+// 敵の出現, 行動のデータの構造体
 #[derive(Deserialize, Debug, Clone, PartialEq)]
 struct Stage {
 	count: u32,
@@ -296,8 +314,24 @@ impl MainState {
 
 		let v: Value = serde_json::from_str(&s).expect("serde json from str");
 		let sv: &Value = &v["stage1"];
-		let mut stage1: Vec<Stage> = serde_json::from_value(sv.to_owned()).expect("serde json from value");
+		let mut stage_from_json: Vec<StageFromJson> = serde_json::from_value(sv.to_owned()).expect("serde json from value");
+		// ---------------------
 
+		// StageFromJsonをStageに変換
+		//let mut buf_count: (u32, usize) = (stage_from_json[0].count, 0);
+		let mut stage1: Vec<Stage> = Vec::new();
+		for sfj in stage_from_json {
+			for sfj_c in sfj.count {
+				stage1.push(Stage {
+					count: sfj_c,
+					char_type: sfj.char_type.clone(),
+					number_class: sfj.number_class,
+					point: sfj.point,
+					life: sfj.life,
+					moving: sfj.moving.clone(),
+				})
+			}
+		}
 		println!("{:?}", stage1);
 		// ---------------------
 
@@ -448,7 +482,7 @@ impl ggez::event::EventHandler for MainState {
 
 				match e.memo.as_str() {
 					"six" => shot_type::six(e, &mut self.enshots, self.game_count),
-					_ => println!("fafafa"),
+					_ => (),
 				}
 
 				Actor::update_point(e, seconds);

@@ -1,8 +1,8 @@
 {
-	"version": "????",
+	"version": "1.0.1",
 	"stage1": [
 		{
-			"count": 60,
+			"count": [100, 500],
 			"char_type": "s",
 			"number_class": [5, 20],
 			"point": [700.0, 10.0],
@@ -10,7 +10,7 @@
 			"moving": [
 				{
 					"count": 0,
-					"velocity": [0.0, 100.0],
+					"velocity": [0.0, 150.0],
 					"accel": [0.0, 0.0],
 					"shot_type": "none"
 				},
@@ -18,12 +18,12 @@
 					"count": 100,
 					"velocity": [-200.0, 100.0],
 					"accel": [10.0, -110.0],
-					"shot_type": "six"
+					"shot_type": "none"
 				}
 			]
 		},
 		{
-			"count": 160,
+			"count": [200, 600],
 			"char_type": "s",
 			"number_class": [5, 20],
 			"point": [200.0, 10.0],
@@ -31,7 +31,7 @@
 			"moving": [
 				{
 					"count": 0,
-					"velocity": [0.0, 100.0],
+					"velocity": [0.0, 150.0],
 					"accel": [0.0, 0.0],
 					"shot_type": "none"
 				},
@@ -39,7 +39,7 @@
 					"count": 100,
 					"velocity": [200.0, 100.0],
 					"accel": [10.0, -110.0],
-					"shot_type": "six"
+					"shot_type": "none"
 				}
 			]
 		}
