@@ -126,6 +126,8 @@ impl Actor {
 	fn update_point(actor: &mut Actor, dt: f32) {
 		let mut x_vel = actor.velocity[0];
 		let mut y_vel = actor.velocity[1];
+		let x_acc = actor.accel[0];
+		let y_acc = actor.accel[1];
 
 		let mut window_end = 0.0;
 		let mut enemy_dead = false;
@@ -160,6 +162,8 @@ impl Actor {
 			actor.life = 0.0;
 		}
 
+		actor.velocity[0] += x_acc * dt;
+		actor.velocity[1] += x_acc * dt;
 		actor.point[0] += x_vel * dt;
 		actor.point[1] += y_vel * dt;
 	}
@@ -248,6 +252,8 @@ struct StageFromJson {
 	// [繰り返す回数, 間隔カウント]
 	point: [f32; 2],
 	// 初期位置 [x, y]
+	shift_point: [f32; 2],
+	// 出現位置のずれ [x, y]
 	life: f32,
 	// 初期life
 	moving: Vec<MovingElement>,
@@ -266,6 +272,8 @@ struct Stage {
 	// [繰り返す回数, 間隔カウント]
 	point: [f32; 2],
 	// 初期位置 [x, y]
+	shift_point: [f32; 2],
+	// 出現位置のずれ [x, y]
 	life: f32,
 	// 初期life
 	moving: Vec<MovingElement>,
@@ -327,6 +335,7 @@ impl MainState {
 					char_type: sfj.char_type.clone(),
 					number_class: sfj.number_class,
 					point: sfj.point,
+					shift_point: sfj.shift_point,
 					life: sfj.life,
 					moving: sfj.moving.clone(),
 				})
@@ -458,6 +467,8 @@ impl ggez::event::EventHandler for MainState {
 						let add_count = en_date.number_class[1];
 						self.stage[i].count += add_count;
 						self.stage[i].number_class[0] -= 1;
+						self.stage[i].point[0] += en_date.shift_point[0];
+						self.stage[i].point[1] += en_date.shift_point[1];
 						for j in 0..en_date.moving.len() {
 							self.stage[i].moving[j].count += add_count;
 						}
