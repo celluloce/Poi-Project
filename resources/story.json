@@ -18,7 +18,7 @@
 				{
 					"count": 100,
 					"velocity": [-200.0, 100.0],
-					"accel": [10.0, -110.0],
+					"accel": [0.0, 0.0],
 					"shot_type": "none"
 				}
 			]
@@ -40,51 +40,73 @@
 				{
 					"count": 100,
 					"velocity": [200.0, 100.0],
-					"accel": [10.0, -110.0],
+					"accel": [0.0, 0.0],
 					"shot_type": "none"
 				}
 			]
 		},
 		{
 			"count": [1000],
-			"char_type": "s",
+			"char_type": "m",
 			"number_class": [3, 100],
 			"point": [200.0, 10.0],
-			"shift_point": [200.0, 0.0],
+			"shift_point": [100.0, 0.0],
 			"life": 10.0,
 			"moving": [
 				{
 					"count": 0,
-					"velocity": [0.0, 150.0],
-					"accel": [0.0, 0.0],
+					"velocity": [0.0, 180.0],
+					"accel": [0.0, -130.0],
 					"shot_type": "none"
 				},
 				{
 					"count": 100,
 					"velocity": [200.0, 100.0],
-					"accel": [10.0, -110.0],
+					"accel": [0.0, 0.0],
 					"shot_type": "none"
 				}
 			]
 		},
 		{
-			"count": [1020],
-			"char_type": "s",
+			"count": [1050],
+			"char_type": "m",
 			"number_class": [3, 100],
 			"point": [700.0, 10.0],
-			"shift_point": [-200.0, 0.0],
+			"shift_point": [-100.0, 0.0],
 			"life": 10.0,
 			"moving": [
 				{
 					"count": 0,
-					"velocity": [0.0, 150.0],
-					"accel": [0.0, 0.0],
+					"velocity": [0.0, 180.0],
+					"accel": [0.0, -130.0],
 					"shot_type": "none"
 				},
 				{
 					"count": 100,
 					"velocity": [-200.0, 100.0],
-					"accel": [10.0, -110.0],
+					"accel": [0.0, 0.0],
+					"shot_type": "none"
+				}
+			]
+		},
+		{
+			"count": [2000],
+			"char_type": "s",
+			"number_class": [3, 100],
+			"point": [700.0, 10.0],
+			"shift_point": [-100.0, 0.0],
+			"life": 10.0,
+			"moving": [
+				{
+					"count": 0,
+					"velocity": [0.0, 180.0],
+					"accel": [0.0, -130.0],
+					"shot_type": "none"
+				},
+				{
+					"count": 100,
+					"velocity": [-200.0, 100.0],
+					"accel": [0.0, 0.0],
 					"shot_type": "none"
 				}
 			]

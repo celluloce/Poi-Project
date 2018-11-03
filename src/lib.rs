@@ -163,7 +163,7 @@ impl Actor {
 		}
 
 		actor.velocity[0] += x_acc * dt;
-		actor.velocity[1] += x_acc * dt;
+		actor.velocity[1] += y_acc * dt;
 		actor.point[0] += x_vel * dt;
 		actor.point[1] += y_vel * dt;
 	}
@@ -349,7 +349,6 @@ impl MainState {
 			for stage in &mut stage1 {
 				for moving in &mut stage.moving {
 					moving.count += stage.count;
-					println!("{:?}", moving);
 				}
 			}
 		// ---------------------
