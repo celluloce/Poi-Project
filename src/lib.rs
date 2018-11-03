@@ -18,6 +18,7 @@ use std::io::Read;
 
 pub mod shot_type;
 
+const GAME_COUNT: u32 = 2500;
 
 pub const SCREEN_WIDTH: u32 = 1280;
 pub const SCREEN_HEIGHT: u32 = 960;
@@ -491,7 +492,12 @@ impl ggez::event::EventHandler for MainState {
 				}
 
 				match e.memo.as_str() {
-					"six" => shot_type::six(e, &mut self.enshots, self.game_count),
+					"six" => shot_type::six(
+						e,
+						self.player.point,
+						&mut self.enshots,
+						self.game_count
+						),
 					_ => (),
 				}
 
