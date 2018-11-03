@@ -18,6 +18,7 @@ use std::io::Read;
 
 pub mod shot_type;
 
+const GAME_COUNT: u32 = 1500;
 
 pub const SCREEN_WIDTH: u32 = 1280;
 pub const SCREEN_HEIGHT: u32 = 960;
@@ -99,11 +100,11 @@ impl Actor {
 			memo: String::new(),
 		}
 	}
-	fn enemy_s_new(point: [f32; 2], life: f32, moving: Vec<MovingElement>) -> Actor {
+	fn enemy_s_new(point: [f32; 2],vel: [f32; 2], life: f32, moving: Vec<MovingElement>) -> Actor {
 		Actor {
 			actor_type: ActorType::Enemy,
 			point: point,
-			velocity: [0.0; 2],
+			velocity: vel,
 			accel: [0.0; 2],
 			bbox_size: 20.0,
 			life: life,
@@ -254,6 +255,9 @@ struct StageFromJson {
 	// 初期位置 [x, y]
 	shift_point: [f32; 2],
 	// 出現位置のずれ [x, y]
+	velocity: [f32; 2],
+	// 初期速度
+	// Shot: [角度, スカラ値]
 	life: f32,
 	// 初期life
 	moving: Vec<MovingElement>,
@@ -274,6 +278,9 @@ struct Stage {
 	// 初期位置 [x, y]
 	shift_point: [f32; 2],
 	// 出現位置のずれ [x, y]
+	velocity: [f32; 2],
+	// 初期速度
+	// Shot: [角度, スカラ値]
 	life: f32,
 	// 初期life
 	moving: Vec<MovingElement>,
@@ -287,9 +294,6 @@ pub struct MovingElement {
 	count: u32,
 	// イベントを起こすカウント数
 	// Stage.countからの相対値ではなく絶対値
-	velocity: [f32; 2],
-	// 移動速度 [x, y]
-	// Shot: [角度, スカラ値]
 	accel: [f32; 2],
 	// 加速度 [x, y]
 	// Shot: [角度の値, スカラ値] （ベクトル演算ではない）
@@ -336,6 +340,7 @@ impl MainState {
 					number_class: sfj.number_class,
 					point: sfj.point,
 					shift_point: sfj.shift_point,
+					velocity: sfj.velocity,
 					life: sfj.life,
 					moving: sfj.moving.clone(),
 				})
@@ -361,7 +366,7 @@ impl MainState {
 			enshots: Vec::with_capacity(100),
 			stage: stage1,
 			input: InputState::new(),
-			game_count: 0,
+			game_count: GAME_COUNT,
 			assets: Assets::new(ctx).unwrap(),
 			score: 0,
 		};
@@ -458,9 +463,10 @@ impl ggez::event::EventHandler for MainState {
 				let en_date = self.stage[i].clone();
 				if en_date.count == self.game_count {
 					let p = [en_date.point[0], en_date.point[1]];
+					let v = [en_date.velocity[0], en_date.velocity[1]];
 					let l = en_date.life;
 					let m = en_date.moving.clone();
-					self.enemy.push(Actor::enemy_s_new(p, l, m));
+					self.enemy.push(Actor::enemy_s_new(p, v, l, m));
 
 					if en_date.number_class[0] > 0 {
 						let add_count = en_date.number_class[1];
@@ -484,7 +490,6 @@ impl ggez::event::EventHandler for MainState {
 			for e in &mut self.enemy {
 				for i in 0..e.moving.len() {
 					if e.moving[i].count == self.game_count {
-						e.velocity = e.moving[i].velocity;
 						e.accel = e.moving[i].accel;
 						e.memo = e.moving[i].shot_type.clone();
 					}
