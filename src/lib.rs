@@ -18,7 +18,7 @@ use std::io::Read;
 
 pub mod shot_type;
 
-const GAME_COUNT: u32 = 3000;
+const GAME_COUNT: u32 = 2900;
 
 pub const SCREEN_WIDTH: u32 = 1280;
 pub const SCREEN_HEIGHT: u32 = 960;
@@ -41,6 +41,7 @@ pub const STAGE_RIGHT: u32 = 830;
 enum ActorType {
 	Player,
 	Enemy,
+	Boss,
 	PlShot,
 	EnShot,
 }
@@ -49,6 +50,7 @@ enum ActorType {
 enum WindowState {
 	Title,
 	Gaming,
+	GamingBoss,
 	GameOver,
 }
 
@@ -109,6 +111,18 @@ impl Actor {
 			bbox_size: 20.0,
 			life: life,
 			moving: moving,
+			memo: String::new(),
+		}
+	}
+	fn boss_new(point: [f32; 2],vel: [f32; 2], life: f32) -> Actor {
+		Actor {
+			actor_type: ActorType::Boss,
+			point: point,
+			velocity: vel,
+			accel: [0.0; 2],
+			bbox_size: 20.0,
+			life: life,
+			moving: Vec::new(),
 			memo: String::new(),
 		}
 	}
@@ -312,6 +326,7 @@ pub struct MainState {
 	stage: Vec<Stage>,
 	input: InputState,
 	game_count: u32,
+	game_conut_boss: u32,
 	assets: Assets,
 	score: u32,
 }
@@ -367,16 +382,13 @@ impl MainState {
 			stage: stage1,
 			input: InputState::new(),
 			game_count: GAME_COUNT,
+			game_conut_boss: 0,
 			assets: Assets::new(ctx).unwrap(),
 			score: 0,
 		};
 
 		Ok(s)
 	}
-	fn game_count_new(&mut self) {
-		self.game_count = 0;
-	}
-
 }
 
 impl ggez::event::EventHandler for MainState {
@@ -391,21 +403,27 @@ impl ggez::event::EventHandler for MainState {
 		//println!("{:?}", timer::get_fps(ctx));
 
 		while timer::check_update_time(ctx, FPS) {
-
-			// PlayerLifeがゼロの時、WindowStateがGameoverになる
-			if self.player.life <= 0.0 {
-				self.window_state = WindowState::GameOver;
-			}
+			let mut game_count_use;
 
 			// WindowStateの分岐----------
 			match self.window_state {
 				WindowState::Title => {
 					if self.input.shot {
 						self.window_state = WindowState::Gaming;
+						self.game_count = GAME_COUNT
 					}
 					continue
 				},
-				WindowState::Gaming => (),
+				WindowState::Gaming => {
+					self.game_count += 1;
+					game_count_use = self.game_count;
+				}
+				WindowState::GamingBoss => {
+					// Update boss counter----------
+					self.game_conut_boss += 1;
+					game_count_use = self.game_conut_boss;
+					// -------------------------
+				}
 				WindowState::GameOver => {
 					continue
 				}
@@ -421,6 +439,7 @@ impl ggez::event::EventHandler for MainState {
 			// キーインプット基底ベクトルをInputState値として定める
 			// -> InputState値*スカラ値=ActorVelocity
 			// -> ActorVelocity*1Frameあたりかかる秒=1Frameあたり進む距離
+			// PlayerLifeがゼロの時、WindowStateがGameoverになる
 			let s_input = self.input;
 			if !s_input.shift {
 				// 高速移動
@@ -431,11 +450,17 @@ impl ggez::event::EventHandler for MainState {
 				self.player.velocity[0] = (s_input.right + s_input.left) * 100.0;
 				self.player.velocity[1] = (s_input.up + s_input.down) * 100.0;
 			}
+
 			Actor::update_point(&mut self.player, seconds);
+
+			if self.player.life <= 0.0 {
+				self.window_state = WindowState::GameOver;
+			}
+
 			// -------------------------
 
 			// Update shot state----------
-			if self.input.shot && self.game_count % 3 == 0 {
+			if self.input.shot && game_count_use % 3 == 0 {
 				// println!("shot: {}", self.game_count);
 				// InputStateのshotがtrueの時、shotをVectorに入れる
 				let mut pp = self.player.point;
@@ -459,9 +484,15 @@ impl ggez::event::EventHandler for MainState {
 			// -------------------------
 
 			// Jsonから取得したデータから、Enemyを生成
+			// char_type = "boss"が見つかった場合、its_boss_timeがtrueになる
+			let mut its_boss_time = false;
 			for i in 0..self.stage.len() {
 				let en_date = self.stage[i].clone();
 				if en_date.count == self.game_count {
+					match en_date.char_type.as_str() {
+						"boss" => its_boss_time = true,
+						_ => (),
+					}
 					let p = [en_date.point[0], en_date.point[1]];
 					let v = [en_date.velocity[0], en_date.velocity[1]];
 					let l = en_date.life;
@@ -552,11 +583,16 @@ impl ggez::event::EventHandler for MainState {
 			self.enshots.retain(|s| s.life > 0.0);
 			// -------------------------
 
-			// Update game counter----------
-			self.game_count += 1;
-			// println!("{}", self.game_count);
-			// -------------------------
-
+			if its_boss_time {
+				self.enemy = Vec::new();
+				self.enshots = Vec::new();
+				self.window_state = WindowState::GamingBoss;
+				self.enemy.push(Actor::boss_new(
+							[350.0, 200.0],
+							[0.0, 0.0],
+							5.0,
+						));
+			}
 		}
 		Ok(())
 	}
@@ -565,6 +601,7 @@ impl ggez::event::EventHandler for MainState {
 		graphics::clear(ctx);
 
 		let point = self.player.point;
+		let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 18).unwrap();
 
 		// match Window State
 		match self.window_state {
@@ -593,6 +630,13 @@ impl ggez::event::EventHandler for MainState {
 				return Ok(());
 			},
 			WindowState::Gaming => (),
+			WindowState::GamingBoss => {
+				// Print Boss life
+				let display_str = format!("Boss: {}", self.player.life as usize);
+				let display = graphics::Text::new(ctx, &display_str, &font).unwrap();
+				let display_point = graphics::Point2::new(900.0, 200.0);
+				graphics::draw(ctx, &display, display_point, 0.0).unwrap();
+			}
 			WindowState::GameOver => {
 				let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 30).unwrap();
 				let gameover_display = graphics::Text::new(ctx, "GameOver", &font).unwrap();
@@ -653,7 +697,6 @@ impl ggez::event::EventHandler for MainState {
 
 		// Print score
 		let display_str = format!("Score: {}", self.score);
-		let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 18).unwrap();
 		let display = graphics::Text::new(ctx, &display_str, &font).unwrap();
 		let display_point = graphics::Point2::new(900.0, 100.0);
 		graphics::draw(ctx, &display, display_point, 0.0).unwrap();
