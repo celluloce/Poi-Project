@@ -18,7 +18,7 @@ use std::io::Read;
 
 pub mod shot_type;
 
-const GAME_COUNT: u32 = 2900;
+const GAME_COUNT: u32 = 3400;
 
 pub const SCREEN_WIDTH: u32 = 1280;
 pub const SCREEN_HEIGHT: u32 = 960;
@@ -96,7 +96,7 @@ impl Actor {
 			point: p_point,
 			velocity: [1.0, 3000.0],
 			accel: [0.0, 0.0],
-			bbox_size: 8.0,
+			bbox_size: 10.0,
 			life: 1.0,
 			moving: Vec::new(),
 			memo: String::new(),
@@ -114,7 +114,7 @@ impl Actor {
 			memo: String::new(),
 		}
 	}
-	fn boss_new(point: [f32; 2],vel: [f32; 2], life: f32) -> Actor {
+	fn boss_new(point: [f32; 2],vel: [f32; 2], life: f32, memo: &str) -> Actor {
 		Actor {
 			actor_type: ActorType::Boss,
 			point: point,
@@ -123,7 +123,7 @@ impl Actor {
 			bbox_size: 20.0,
 			life: life,
 			moving: Vec::new(),
-			memo: String::new(),
+			memo: memo.to_string(),
 		}
 	}
 	fn enemy_shot_new(point: [f32; 2], velocity: [f32; 2]) -> Actor {
@@ -341,7 +341,8 @@ impl MainState {
 
 		let v: Value = serde_json::from_str(&s).expect("serde json from str");
 		let sv: &Value = &v["stage1"];
-		let mut stage_from_json: Vec<StageFromJson> = serde_json::from_value(sv.to_owned()).expect("serde json from value");
+		let mut stage_from_json: Vec<StageFromJson>
+			= serde_json::from_value(sv.to_owned()).expect("serde json from value");
 		// ---------------------
 
 		// StageFromJsonをStageに変換
@@ -401,6 +402,11 @@ impl ggez::event::EventHandler for MainState {
 		//println!("{:?}", timer::duration_to_f64(timer::get_average_delta(ctx)));
 		//println!("{:?}", timer::duration_to_f64(timer::get_remaining_update_time(ctx)));
 		//println!("{:?}", timer::get_fps(ctx));
+		// 開始からの経過時間を計測----------
+		//let since_start = timer::get_time_since_start(ctx);
+		// println!("{:?}", since_start);
+		// -------------------------
+
 
 		while timer::check_update_time(ctx, FPS) {
 			let mut game_count_use;
@@ -421,6 +427,7 @@ impl ggez::event::EventHandler for MainState {
 				WindowState::GamingBoss => {
 					// Update boss counter----------
 					self.game_conut_boss += 1;
+					//self.game_count += 1;
 					game_count_use = self.game_conut_boss;
 					// -------------------------
 				}
@@ -429,11 +436,6 @@ impl ggez::event::EventHandler for MainState {
 				}
 			}
 			// --------------------
-
-			// 開始からの経過時間を計測----------
-			let since_start = timer::get_time_since_start(ctx);
-			// println!("{:?}", since_start);
-			// -------------------------
 
 			// Update player point----------
 			// キーインプット基底ベクトルをInputState値として定める
@@ -490,7 +492,11 @@ impl ggez::event::EventHandler for MainState {
 				let en_date = self.stage[i].clone();
 				if en_date.count == self.game_count {
 					match en_date.char_type.as_str() {
-						"boss" => its_boss_time = true,
+						"boss" => {
+							its_boss_time = true;
+							self.game_count += 1;
+							continue;
+						}
 						_ => (),
 					}
 					let p = [en_date.point[0], en_date.point[1]];
@@ -527,7 +533,8 @@ impl ggez::event::EventHandler for MainState {
 				}
 
 				match e.memo.as_str() {
-					"six" => shot_type::six(e, self.player.point, &mut self.enshots, self.game_count),
+					"six" => shot_type::six(e, self.player.point, &mut self.enshots, game_count_use),
+					"b_six_rotate" => shot_type::b_six_rotate(e, self.player.point, &mut self.enshots, game_count_use),
 					_ => (),
 				}
 
@@ -590,7 +597,8 @@ impl ggez::event::EventHandler for MainState {
 				self.enemy.push(Actor::boss_new(
 							[350.0, 200.0],
 							[0.0, 0.0],
-							5.0,
+							500.0,
+							"b_six_rotate"
 						));
 			}
 		}
@@ -632,10 +640,12 @@ impl ggez::event::EventHandler for MainState {
 			WindowState::Gaming => (),
 			WindowState::GamingBoss => {
 				// Print Boss life
-				let display_str = format!("Boss: {}", self.player.life as usize);
-				let display = graphics::Text::new(ctx, &display_str, &font).unwrap();
-				let display_point = graphics::Point2::new(900.0, 200.0);
-				graphics::draw(ctx, &display, display_point, 0.0).unwrap();
+				if self.enemy.len() == 1 {
+					let display_str = format!("Boss: {}", self.enemy[0].life);
+					let display = graphics::Text::new(ctx, &display_str, &font).unwrap();
+					let display_point = graphics::Point2::new(500.0, 200.0);
+					graphics::draw(ctx, &display, display_point, 0.0).unwrap();
+				}
 			}
 			WindowState::GameOver => {
 				let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 30).unwrap();
