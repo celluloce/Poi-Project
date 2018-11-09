@@ -156,19 +156,12 @@ impl Actor {
 		let s_left = STAGE_LEFT as f32 - window_end;
 		let s_right = STAGE_RIGHT as f32 + window_end;
 
-		if actor.point[0] < s_left && x_vel < 0.0 {
+
+		if (actor.point[0] < s_left && x_vel < 0.0) || (actor.point[0] > s_right && x_vel > 0.0) {
 			x_vel = 0.0;
 			enemy_dead = true;
 		}
-		if actor.point[0] > s_right && x_vel > 0.0 {
-			x_vel = 0.0;
-			enemy_dead = true;
-		}
-		if actor.point[1] < s_up && y_vel < 0.0 {
-			y_vel = 0.0;
-			enemy_dead = true;
-		}
-		if actor.point[1] > s_down && y_vel > 0.0 {
+		if (actor.point[1] < s_up && y_vel < 0.0) || (actor.point[1] > s_down && y_vel > 0.0) {
 			y_vel = 0.0;
 			enemy_dead = true;
 		}
@@ -196,19 +189,11 @@ impl Actor {
 		let mut x_vel = scalar * ragian.sin();
 		let mut y_vel = scalar * ragian.cos();
 
-		if actor.point[0] < s_left && x_vel < 0.0 {
+		if (actor.point[0] < s_left && x_vel < 0.0) || (actor.point[0] > s_right && x_vel > 0.0) {
 			x_vel = 0.0;
 			actor.life = 0.0;
 		}
-		if actor.point[0] > s_right && x_vel > 0.0 {
-			x_vel = 0.0;
-			actor.life = 0.0;
-		}
-		if actor.point[1] < s_up && y_vel < 0.0 {
-			y_vel = 0.0;
-			actor.life = 0.0;
-		}
-		if actor.point[1] > s_down && y_vel > 0.0 {
+		if (actor.point[1] < s_up && y_vel < 0.0) || (actor.point[1] > s_down && y_vel > 0.0) {
 			y_vel = 0.0;
 			actor.life = 0.0;
 		}
@@ -313,20 +298,19 @@ pub struct MovingElement {
 	// Shot: [角度の値, スカラ値] （ベクトル演算ではない）
 	shot_type: String,
 	// 放つShotの種類
-	// Shotは多分使わない
 }
 
 #[derive(Debug)]
 pub struct MainState {
 	window_state: WindowState,
 	player: Actor,
-	shots: Vec<Actor>,
-	enemy: Vec<Actor>,
+	plshots: Vec<Actor>,
+	enemys: Vec<Actor>,
 	enshots: Vec<Actor>,
 	stage: Vec<Stage>,
 	input: InputState,
-	game_count: u32,
-	game_conut_boss: u32,
+	game_count: [u32; 2],
+	// [道中, Boss]
 	assets: Assets,
 	score: u32,
 }
@@ -362,7 +346,7 @@ impl MainState {
 				})
 			}
 		}
-		println!("{:?}", stage1);
+		println!("Inputed stage: {:?}", stage1);
 		// ---------------------
 
 		// moving countにstage countを加算
@@ -377,13 +361,12 @@ impl MainState {
 		let s = MainState{
 			window_state: WindowState::Title,
 			player: Actor::player_new(),
-			shots: Vec::with_capacity(50),
-			enemy: Vec::with_capacity(30),
+			plshots: Vec::with_capacity(50),
+			enemys: Vec::with_capacity(30),
 			enshots: Vec::with_capacity(100),
 			stage: stage1,
 			input: InputState::new(),
-			game_count: GAME_COUNT,
-			game_conut_boss: 0,
+			game_count: [GAME_COUNT, 0],
 			assets: Assets::new(ctx).unwrap(),
 			score: 0,
 		};
@@ -416,19 +399,17 @@ impl ggez::event::EventHandler for MainState {
 				WindowState::Title => {
 					if self.input.shot {
 						self.window_state = WindowState::Gaming;
-						self.game_count = GAME_COUNT
 					}
 					continue
 				},
 				WindowState::Gaming => {
-					self.game_count += 1;
-					game_count_use = self.game_count;
+					self.game_count[0] += 1;
+					game_count_use = self.game_count[0];
 				}
 				WindowState::GamingBoss => {
 					// Update boss counter----------
-					self.game_conut_boss += 1;
-					//self.game_count += 1;
-					game_count_use = self.game_conut_boss;
+					self.game_count[1] += 1;
+					game_count_use = self.game_count[1];
 					// -------------------------
 				}
 				WindowState::GameOver => {
@@ -463,26 +444,15 @@ impl ggez::event::EventHandler for MainState {
 
 			// Update shot state----------
 			if self.input.shot && game_count_use % 3 == 0 {
-				// println!("shot: {}", self.game_count);
-				// InputStateのshotがtrueの時、shotをVectorに入れる
 				let mut pp = self.player.point;
 				pp[0] += 20.0;
-				self.shots.push(Actor::player_shot_new(pp));
+				self.plshots.push(Actor::player_shot_new(pp));
 				pp[0] -= 40.0;
-				self.shots.push(Actor::player_shot_new(pp));
+				self.plshots.push(Actor::player_shot_new(pp));
 			}
-			for act in &mut self.shots {
-				Actor::update_point_shot(act, seconds);
+			for s in &mut self.plshots {
+				Actor::update_point_shot(s, seconds);
 			}
-			// -------------------------
-
-			// debug shot----------
-			// for act in &self.shots {
-			// 	print!("{}", act.life);
-			// }
-			// println!("");
-			// println!("shot len: {}", self.shots.len());
-			// println!("");
 			// -------------------------
 
 			// Jsonから取得したデータから、Enemyを生成
@@ -490,11 +460,11 @@ impl ggez::event::EventHandler for MainState {
 			let mut its_boss_time = false;
 			for i in 0..self.stage.len() {
 				let en_date = self.stage[i].clone();
-				if en_date.count == self.game_count {
+				if en_date.count == self.game_count[0] {
 					match en_date.char_type.as_str() {
 						"boss" => {
 							its_boss_time = true;
-							self.game_count += 1;
+							self.game_count[0] += 1;
 							continue;
 						}
 						_ => (),
@@ -503,7 +473,7 @@ impl ggez::event::EventHandler for MainState {
 					let v = [en_date.velocity[0], en_date.velocity[1]];
 					let l = en_date.life;
 					let m = en_date.moving.clone();
-					self.enemy.push(Actor::enemy_s_new(p, v, l, m));
+					self.enemys.push(Actor::enemy_s_new(p, v, l, m));
 
 					if en_date.number_class[0] > 0 {
 						let add_count = en_date.number_class[1];
@@ -524,11 +494,11 @@ impl ggez::event::EventHandler for MainState {
 			// - Jsonから取得したデータから、Enemyの動作を書き換え
 			// - 弾幕を張る
 			// - 位置の更新
-			for e in &mut self.enemy {
-				for i in 0..e.moving.len() {
-					if e.moving[i].count == self.game_count {
-						e.accel = e.moving[i].accel;
-						e.memo = e.moving[i].shot_type.clone();
+			for e in &mut self.enemys {
+				for m in 0..e.moving.len() {
+					if e.moving[m].count == self.game_count[0] {
+						e.accel = e.moving[m].accel;
+						e.memo = e.moving[m].shot_type.clone();
 					}
 				}
 
@@ -542,41 +512,37 @@ impl ggez::event::EventHandler for MainState {
 			}
 			//-------------------------
 
+			let in_bbox = |ac1: &mut Actor, ac2: &mut Actor| {
+				// rr > xx + yy
+				let x = ac1.point[0] - ac2.point[0];
+				let y = ac1.point[1] - ac2.point[1];
+				let r = ac1.bbox_size + ac2.bbox_size;
+
+				let xx = x * x;
+				let yy = y * y;
+				let rr = r * r;
+				rr > xx + yy
+			};
+
 			// Hit EnemyShots & Player----------
-				for enshot in &mut self.enshots {
-					Actor::update_point_shot(enshot, seconds);
+				for es in &mut self.enshots {
+					Actor::update_point_shot(es, seconds);
 
-					// rr > xx + yy
-					let player = &mut self.player;
-					let x = player.point[0] - enshot.point[0];
-					let y = player.point[1] - enshot.point[1];
-					let r = player.bbox_size + enshot.bbox_size;
-
-					let xx = x * x;
-					let yy = y * y;
-					let rr = r * r;
-					if rr > xx + yy {
-						enshot.life = 0.0;
-						player.life -= 1.0;
+					let pl = &mut self.player;
+					if in_bbox(pl, es) {
+						es.life = 0.0;
+						pl.life -= 1.0;
 					}
 				}
 			// -------------------------
 
 			// Hit PlayerShots & Enemy----------
-				for enemy in &mut self.enemy {
-					for shot in &mut self.shots {
-						// rr > xx + yy
-						let x = shot.point[0] - enemy.point[0];
-						let y = shot.point[1] - enemy.point[1];
-						let r = shot.bbox_size + enemy.bbox_size;
-
-						let xx = x * x;
-						let yy = y * y;
-						let rr = r * r;
-						if rr > xx + yy {
-							enemy.life -= shot.life;
-							shot.life = 0.0;
-							if enemy.life <= 0.0 {
+				for en in &mut self.enemys {
+					for ps in &mut self.plshots {
+						if in_bbox(en, ps) {
+							en.life -= ps.life;
+							ps.life = 0.0;
+							if en.life <= 0.0 {
 								self.score += 30;
 							}
 						}
@@ -585,16 +551,16 @@ impl ggez::event::EventHandler for MainState {
 			// -------------------------
 
 			// Clear zero_life Enemy, Shot----------
-			self.shots.retain(|s| s.life > 0.0);
-			self.enemy.retain(|s| s.life > 0.0);
+			self.plshots.retain(|s| s.life > 0.0);
+			self.enemys.retain(|s| s.life > 0.0);
 			self.enshots.retain(|s| s.life > 0.0);
 			// -------------------------
 
 			if its_boss_time {
-				self.enemy = Vec::new();
+				self.enemys = Vec::new();
 				self.enshots = Vec::new();
 				self.window_state = WindowState::GamingBoss;
-				self.enemy.push(Actor::boss_new(
+				self.enemys.push(Actor::boss_new(
 							[350.0, 200.0],
 							[0.0, 0.0],
 							500.0,
@@ -640,8 +606,8 @@ impl ggez::event::EventHandler for MainState {
 			WindowState::Gaming => (),
 			WindowState::GamingBoss => {
 				// Print Boss life
-				if self.enemy.len() == 1 {
-					let display_str = format!("Boss: {}", self.enemy[0].life);
+				if self.enemys.len() == 1 {
+					let display_str = format!("Boss: {}", self.enemys[0].life);
 					let display = graphics::Text::new(ctx, &display_str, &font).unwrap();
 					let display_point = graphics::Point2::new(500.0, 200.0);
 					graphics::draw(ctx, &display, display_point, 0.0).unwrap();
@@ -665,7 +631,7 @@ impl ggez::event::EventHandler for MainState {
 		);
 
 		// drow shot rectangle
-		for act in &mut self.shots {
+		for act in &mut self.plshots {
 			let point = act.point;
 			graphics::rectangle(
 				ctx,
@@ -675,7 +641,7 @@ impl ggez::event::EventHandler for MainState {
 		}
 
 		// drow enemy circle
-		for act in &mut self.enemy {
+		for act in &mut self.enemys {
 			let point = act.point;
 			graphics::circle(
 				ctx,
