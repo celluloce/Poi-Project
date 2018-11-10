@@ -419,9 +419,8 @@ impl ggez::event::EventHandler for MainState {
 			// --------------------
 
 			// Update player point----------
-			// キーインプット基底ベクトルをInputState値として定める
-			// -> InputState値*スカラ値=ActorVelocity
-			// -> ActorVelocity*1Frameあたりかかる秒=1Frameあたり進む距離
+			// キーインプットに応じて、Playerのvelocityを書き換える
+			// Playerの位置を更新
 			// PlayerLifeがゼロの時、WindowStateがGameoverになる
 			let s_input = self.input;
 			if !s_input.shift {
@@ -442,7 +441,7 @@ impl ggez::event::EventHandler for MainState {
 
 			// -------------------------
 
-			// Update shot state----------
+			// Update Plshot state----------
 			if self.input.shot && game_count_use % 3 == 0 {
 				let mut pp = self.player.point;
 				pp[0] += 20.0;
@@ -458,8 +457,9 @@ impl ggez::event::EventHandler for MainState {
 			// Jsonから取得したデータから、Enemyを生成
 			// char_type = "boss"が見つかった場合、its_boss_timeがtrueになる
 			let mut its_boss_time = false;
-			for i in 0..self.stage.len() {
-				let en_date = self.stage[i].clone();
+			// stage element number
+			for sen in 0..self.stage.len() {
+				let en_date = self.stage[sen].clone();
 				if en_date.count == self.game_count[0] {
 					match en_date.char_type.as_str() {
 						"boss" => {
@@ -477,12 +477,13 @@ impl ggez::event::EventHandler for MainState {
 
 					if en_date.number_class[0] > 0 {
 						let add_count = en_date.number_class[1];
-						self.stage[i].count += add_count;
-						self.stage[i].number_class[0] -= 1;
-						self.stage[i].point[0] += en_date.shift_point[0];
-						self.stage[i].point[1] += en_date.shift_point[1];
-						for j in 0..en_date.moving.len() {
-							self.stage[i].moving[j].count += add_count;
+						self.stage[sen].count += add_count;
+						self.stage[sen].number_class[0] -= 1;
+						self.stage[sen].point[0] += en_date.shift_point[0];
+						self.stage[sen].point[1] += en_date.shift_point[1];
+						// en date moving number
+						for edmn in 0..en_date.moving.len() {
+							self.stage[sen].moving[edmn].count += add_count;
 						}
 					}
 				}
@@ -502,9 +503,12 @@ impl ggez::event::EventHandler for MainState {
 					}
 				}
 
+				let pp = self.player.point;
+				let mut es = &mut self.enshots;
+				let gc = game_count_use;
 				match e.memo.as_str() {
-					"six" => shot_type::six(e, self.player.point, &mut self.enshots, game_count_use),
-					"b_six_rotate" => shot_type::b_six_rotate(e, self.player.point, &mut self.enshots, game_count_use),
+					"six" => shot_type::six(e, pp, es, gc),
+					"b_six_rotate" => shot_type::b_six_rotate(e, pp, es, gc),
 					_ => (),
 				}
 
@@ -575,16 +579,19 @@ impl ggez::event::EventHandler for MainState {
 		graphics::clear(ctx);
 
 		let point = self.player.point;
-		let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 18).unwrap();
+		let graphics_draw = |ctx: &mut Context, fs: u32, ds: &str, dp: [f32; 2]| {
+			let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", fs).unwrap();
+			let display = graphics::Text::new(ctx, ds, &font).unwrap();
+			let display_point = graphics::Point2::new(dp[0], dp[1]);
+			graphics::draw(ctx, &display, display_point, 0.0).unwrap();
+
+		};
 
 		// match Window State
 		match self.window_state {
 			WindowState::Title => {
 				// Print "poi-Project"
-				let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 100).unwrap();
-				let display = graphics::Text::new(ctx, "poi-Project", &font).unwrap();
-				let display_point = graphics::Point2::new(300.0, 300.0);
-				graphics::draw(ctx, &display, display_point, 0.0).unwrap();
+				graphics_draw(ctx, 100, "poi-Project", [300.0; 2]);
 
 				// Write "-"
 				graphics::rectangle(
@@ -594,10 +601,7 @@ impl ggez::event::EventHandler for MainState {
 				);
 
 				// Print "press Z key"
-				let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 30).unwrap();
-				let display = graphics::Text::new(ctx, "Please press Z key", &font).unwrap();
-				let display_point = graphics::Point2::new(400.0, 600.0);
-				graphics::draw(ctx, &display, display_point, 0.0).unwrap();
+				graphics_draw(ctx, 30, "Please press Z key", [400.0, 600.0]);
 
 				// Skip other code
 				graphics::present(ctx);
@@ -607,17 +611,12 @@ impl ggez::event::EventHandler for MainState {
 			WindowState::GamingBoss => {
 				// Print Boss life
 				if self.enemys.len() == 1 {
-					let display_str = format!("Boss: {}", self.enemys[0].life);
-					let display = graphics::Text::new(ctx, &display_str, &font).unwrap();
-					let display_point = graphics::Point2::new(500.0, 200.0);
-					graphics::draw(ctx, &display, display_point, 0.0).unwrap();
+					let dis_str = format!("Boss: {}", self.enemys[0].life);
+					graphics_draw(ctx, 18, &dis_str, [500.0, 200.0]);
 				}
 			}
 			WindowState::GameOver => {
-				let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", 30).unwrap();
-				let gameover_display = graphics::Text::new(ctx, "GameOver", &font).unwrap();
-				let display_point = graphics::Point2::new(400.0, 300.0);
-				graphics::draw(ctx, &gameover_display, display_point, 0.0).unwrap();
+				graphics_draw(ctx, 30, "GameOver", [400.0, 300.0]);
 			}
 		}
 
@@ -672,16 +671,12 @@ impl ggez::event::EventHandler for MainState {
 		graphics::draw_ex(ctx, drawable, params);
 
 		// Print score
-		let display_str = format!("Score: {}", self.score);
-		let display = graphics::Text::new(ctx, &display_str, &font).unwrap();
-		let display_point = graphics::Point2::new(900.0, 100.0);
-		graphics::draw(ctx, &display, display_point, 0.0).unwrap();
+		let dis_str = format!("Score: {}", self.score);
+		graphics_draw(ctx, 18, &dis_str, [900.0, 100.0]);
 
 		// Print Player life
-		let display_str = format!("Life: {}", self.player.life as usize);
-		let display = graphics::Text::new(ctx, &display_str, &font).unwrap();
-		let display_point = graphics::Point2::new(900.0, 150.0);
-		graphics::draw(ctx, &display, display_point, 0.0).unwrap();
+		let dis_str = format!("Life: {}", self.player.life as usize);
+		graphics_draw(ctx, 18, &dis_str, [900.0, 150.0]);
 
 		graphics::present(ctx);
 		Ok(())
