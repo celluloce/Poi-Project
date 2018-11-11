@@ -44,22 +44,22 @@ pub fn six(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, cou
 }
 
 pub fn b_six_rotate(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, count: u32) {
-	if count % 3 == 0 {
-		for i in 0..6 {
-			let angle_plus = {
-				let round_per_sec = 1.0 / 30.0;
-				let count_max60 = (count % 60) as f32 ;
-				let round_1sec = count_max60 * round_per_sec;
-				round_1sec + (count as f32 / 4312.9)
-				// ちょっとずらすために変な値を入れる
-			};
-			let ep = enemy.point;
-			let shot_scal = 300.0;
-			let angle = i as f32 / 3.0 + angle_plus;
-			let sv = [angle, shot_scal];
+	if count < 100 || count % 3 != 0 {
+		return ();
+	}
+	for i in 0..6 {
+		let angle_plus = {
+			let round_per_sec = 1.0 / 30.0;
+			let count_max60 = (count % 60) as f32 ;
+			let round_1sec = count_max60 * round_per_sec;
+			round_1sec + (count as f32 / 4312.9)
+			// ちょっとずらすために変な値を入れる
+		};
+		let ep = enemy.point;
+		let shot_scal = 300.0;
+		let angle = i as f32 / 3.0 + angle_plus;
+		let sv = [angle, shot_scal];
 
-			en_shots.push(Actor::enemy_shot_new(ep, sv));
-		}
-
+		en_shots.push(Actor::enemy_shot_new(ep, sv));
 	}
 }
