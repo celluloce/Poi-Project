@@ -114,7 +114,7 @@ impl Actor {
 			memo: String::new(),
 		}
 	}
-	fn boss_new(point: [f32; 2],vel: [f32; 2], life: f32, memo: &str) -> Actor {
+	fn boss_new(point: [f32; 2],vel: [f32; 2], life: f32, moving: Vec<MovingElement>, memo: &str) -> Actor {
 		Actor {
 			actor_type: ActorType::Boss,
 			point: point,
@@ -122,8 +122,8 @@ impl Actor {
 			accel: [0.0; 2],
 			bbox_size: 20.0,
 			life: life,
-			moving: Vec::new(),
-			memo: memo.to_string(),
+			moving: moving,
+			memo: memo.to_owned()
 		}
 	}
 	fn enemy_shot_new(point: [f32; 2], velocity: [f32; 2]) -> Actor {
