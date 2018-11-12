@@ -464,7 +464,7 @@ impl ggez::event::EventHandler for MainState {
 							bs[0].memo = bs[0].moving[0].shot_type.clone();
 						}
 					} else {
-						if game_count_use == bs[0].moving[0].count {
+						if bs[0].life < 0.0 || game_count_use == bs[0].moving[0].count {
 							println!("boss end");
 							*bs = Vec::new();
 							self.window_state = WindowState::Gaming;
