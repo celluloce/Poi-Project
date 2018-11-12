@@ -426,8 +426,8 @@ impl ggez::event::EventHandler for MainState {
 						self.enshots = Vec::new();
 						let mut boss_moving = vec![
 							MovingElement::boss_new(30, "waiting"),
-							MovingElement::boss_new(50, "b_six_rotate"),
-							MovingElement::boss_new(100, "b_six_fireflower"),
+							MovingElement::boss_new(600, "b_six_rotate"),
+							MovingElement::boss_new(600, "b_six_fireflower"),
 						];
 						self.boss.push(Actor::boss_new(
 									[450.0, 200.0],
@@ -671,9 +671,14 @@ impl ggez::event::EventHandler for MainState {
 			WindowState::GamingBoss => {
 				// Print Boss life
 				let bs = &self.boss;
-				if self.boss.len() == 1 {
+				if self.boss.len() >= 1 {
 					let dis_str = format!("Boss: {}", bs[0].life);
 					graphics_draw(ctx, 18, &dis_str, [bs[0].point[0] + 50.0, bs[0].point[1]]);
+					let count_down = (bs[0].moving[0].count - self.game_count[1]) / 60;
+					let dis_str = format!("Time: {}", count_down);
+					graphics_draw(ctx, 18, &dis_str, [700.0 ,40.0]);
+				} else {
+					eprintln!("there is no boss");
 				}
 			}
 			WindowState::GameOver => {

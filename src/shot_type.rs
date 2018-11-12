@@ -44,7 +44,7 @@ pub fn six(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, cou
 }
 
 pub fn b_six_rotate(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, count: u32) {
-	if count < 100 || count % 3 != 0 {
+	if count < 50 || count % 3 != 0 {
 		return ();
 	}
 	for i in 0..6 {
