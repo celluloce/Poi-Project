@@ -299,6 +299,15 @@ pub struct MovingElement {
 	shot_type: String,
 	// 放つShotの種類
 }
+impl MovingElement {
+	fn boss_new (count: u32, shot_type: &str) -> MovingElement{
+		MovingElement {
+			count: count,
+			accel: [0.0; 2],
+			shot_type: shot_type.to_string(),
+		}
+	}
+}
 
 #[derive(Debug)]
 pub struct MainState {
@@ -413,6 +422,41 @@ impl ggez::event::EventHandler for MainState {
 					self.game_count[1] += 1;
 					game_count_use = self.game_count[1];
 					// -------------------------
+
+					// WindowState=GamingBoss 初期化
+					if game_count_use == 1 {
+						self.enemys = Vec::new();
+						self.enshots = Vec::new();
+						let mut boss_moving = vec![
+							MovingElement::boss_new(50, "waiting"),
+							MovingElement::boss_new(100, "b_six_rotate"),
+							MovingElement::boss_new(200, "b_six_fireflower"),
+						];
+						self.boss.push(Actor::boss_new(
+									[450.0, 200.0],
+									[0.0, 0.0],
+									500.0,
+									boss_moving,
+									"",
+								));
+					}
+					// -------------------------
+
+					// Bossの更新
+					// Movingが空になったらGamingBoss終了
+					if self.boss[0].moving.len() > 1 {
+						if self.boss[0].life > 0.0 {
+							if game_count_use == self.boss[0].moving[0].count {
+								self.enshots = Vec::new();
+								self.boss[0].memo = self.boss[0].moving[0].shot_type.clone();
+								self.boss[0].moving.remove(0);
+							}
+						}
+					} else {
+						self.boss = Vec::new();
+						self.window_state = WindowState::Gaming;
+					}
+					// -------------------------
 				}
 				WindowState::GameOver => {
 					continue
@@ -457,15 +501,14 @@ impl ggez::event::EventHandler for MainState {
 			// -------------------------
 
 			// Jsonから取得したデータから、Enemyを生成
-			// char_type = "boss"が見つかった場合、its_boss_timeがtrueになる
-			let mut its_boss_time = false;
+			// char_type = "boss"が見つかった場合、WindowStateがGamingBossになる
 			// stage element number
 			for sen in 0..self.stage.len() {
 				let en_date = self.stage[sen].clone();
 				if en_date.count == self.game_count[0] {
 					match en_date.char_type.as_str() {
 						"boss" => {
-							its_boss_time = true;
+							self.window_state = WindowState::GamingBoss;
 							self.game_count[0] += 1;
 							continue;
 						}
@@ -561,18 +604,6 @@ impl ggez::event::EventHandler for MainState {
 			self.enemys.retain(|s| s.life > 0.0);
 			self.enshots.retain(|s| s.life > 0.0);
 			// -------------------------
-
-			if its_boss_time {
-				self.enemys = Vec::new();
-				self.enshots = Vec::new();
-				self.window_state = WindowState::GamingBoss;
-				self.enemys.push(Actor::boss_new(
-							[350.0, 200.0],
-							[0.0, 0.0],
-							500.0,
-							"b_six_rotate"
-						));
-			}
 		}
 		Ok(())
 	}
@@ -612,9 +643,10 @@ impl ggez::event::EventHandler for MainState {
 			WindowState::Gaming => (),
 			WindowState::GamingBoss => {
 				// Print Boss life
+				let en = &self.enemys;
 				if self.enemys.len() == 1 {
-					let dis_str = format!("Boss: {}", self.enemys[0].life);
-					graphics_draw(ctx, 18, &dis_str, [500.0, 200.0]);
+					let dis_str = format!("Boss: {}", en[0].life);
+					graphics_draw(ctx, 18, &dis_str, [en[0].point[0] + 50.0, en[0].point[1]]);
 				}
 			}
 			WindowState::GameOver => {
@@ -638,6 +670,18 @@ impl ggez::event::EventHandler for MainState {
 				ctx,
 				graphics::DrawMode::Fill,
 				graphics::Rect::new(point[0] - 8.0, point[1] - 15.0, 16.0, 30.0),
+			);
+		}
+
+		// drow boss circle
+		for act in &mut self.boss {
+			let point = act.point;
+			graphics::circle(
+				ctx,
+				graphics::DrawMode::Fill,
+				graphics::Point2::new(point[0],point[1]),
+				20.0,
+				0.1,
 			);
 		}
 
