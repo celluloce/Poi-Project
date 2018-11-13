@@ -81,7 +81,7 @@ impl Actor {
 	fn player_new() -> Actor {
 		Actor {
 			actor_type: ActorType::Player,
-			point: [300.0, 500.0],
+			point: [440.0, 800.0],
 			velocity: [0.0; 2],
 			accel: [0.0, 0.0],
 			bbox_size: 5.0,
@@ -89,6 +89,19 @@ impl Actor {
 			moving: Vec::new(),
 			memo: String::new(),
 		}
+	}
+	fn trans_pleyer_new(life: f32) -> Actor {
+		Actor {
+			actor_type: ActorType::Player,
+			point: [440.0, 800.0],
+			velocity: [0.0; 2],
+			accel: [0.0, 0.0],
+			bbox_size: 0.0,
+			life: life,
+			moving: Vec::new(),
+			memo: String::from("trans"),
+		}
+
 	}
 	fn player_shot_new(p_point: [f32; 2]) -> Actor {
 		Actor {
@@ -344,8 +357,8 @@ pub struct MainState {
 	enshots: Vec<Actor>,
 	stage: Vec<Stage>,
 	input: InputState,
-	game_count: [u32; 2],
-	// [道中, Boss]
+	game_count: [u32; 3],
+	// [道中, Boss, Pl無敵時間計測]
 	assets: Assets,
 	score: u32,
 }
@@ -402,7 +415,7 @@ impl MainState {
 			enshots: Vec::with_capacity(100),
 			stage: stage1,
 			input: InputState::new(),
-			game_count: [GAME_COUNT, 0],
+			game_count: [GAME_COUNT, 0, 0],
 			assets: Assets::new(ctx).unwrap(),
 			score: 0,
 		};
@@ -611,44 +624,54 @@ impl ggez::event::EventHandler for MainState {
 				rr > xx + yy
 			};
 
-			// Hit EnemyShots & Player----------
-				for es in &mut self.enshots {
-					Actor::update_point_shot(es, seconds);
+			// Update Enemy Point----------
+			// Hit EnemyShots & Player
+			println!("{}", self.game_count[2]);
+			for es in &mut self.enshots {
+				Actor::update_point_shot(es, seconds);
 
-					let pl = &mut self.player;
-					if in_bbox(pl, es) {
-						es.life = 0.0;
-						pl.life -= 1.0;
-					}
+				let pl = &mut self.player;
+				if pl.memo != "trans".to_owned() && in_bbox(pl, es) {
+					es.life = 0.0;
+					pl.life -= 1.0;
+					*pl = Actor::trans_pleyer_new(pl.life);
 				}
+			}
+			if self.player.memo == "trans".to_owned() {
+				self.game_count[2] += 1;
+				if self.game_count[2] > 180 {
+					self.player.memo = "".to_owned();
+					self.game_count[2] = 0;
+				}
+			}
 			// -------------------------
 
 			// Hit PlayerShots & Boss----------
-				for bs in &mut self.boss {
-					for ps in &mut self.plshots {
-						if in_bbox(bs, ps) {
-							bs.life -= ps.life;
-							ps.life = 0.0;
-							if bs.life <= 0.0 {
-								self.score += 30;
-							}
+			for bs in &mut self.boss {
+				for ps in &mut self.plshots {
+					if in_bbox(bs, ps) {
+						bs.life -= ps.life;
+						ps.life = 0.0;
+						if bs.life <= 0.0 {
+							self.score += 30;
 						}
 					}
 				}
+			}
 			// -------------------------
 
 			// Hit PlayerShots & Enemy----------
-				for en in &mut self.enemys {
-					for ps in &mut self.plshots {
-						if in_bbox(en, ps) {
-							en.life -= ps.life;
-							ps.life = 0.0;
-							if en.life <= 0.0 {
-								self.score += 30;
-							}
+			for en in &mut self.enemys {
+				for ps in &mut self.plshots {
+					if in_bbox(en, ps) {
+						en.life -= ps.life;
+						ps.life = 0.0;
+						if en.life <= 0.0 {
+							self.score += 30;
 						}
 					}
 				}
+			}
 			// -------------------------
 
 			// Clear zero_life Enemy, Shot----------
