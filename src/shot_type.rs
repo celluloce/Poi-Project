@@ -44,7 +44,7 @@ pub fn six(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, cou
 }
 
 pub fn b_six_rotate(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, count: u32) {
-	if count < 50 || count % 3 != 0 {
+	if count < 50 || count % 3 == 0 {
 		return ();
 	}
 	for i in 0..6 {
@@ -61,5 +61,38 @@ pub fn b_six_rotate(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Ac
 		let sv = [angle, shot_scal];
 
 		en_shots.push(Actor::enemy_shot_new(ep, sv));
+	}
+}
+
+pub fn b_six_fireflower(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, count: u32) {
+	// 5秒周期で射出
+	let shot_time = count % 300;
+	if count < 50 || shot_time != 50 {
+		if shot_time == 120 || shot_time == 180 {
+			let enshots_clone = en_shots.clone();
+			*en_shots = Vec::new();
+			for es in enshots_clone {
+				let esp = es.point;
+				let esv = es.velocity;
+				for i in 1..7 {
+					let sv = [esv[0] + 0.18 * i as f32, 250.0];
+					en_shots.push(Actor::enemy_shot_new(esp, sv));
+					let sv = [esv[0] - 0.18 * i as f32, 250.0];
+					en_shots.push(Actor::enemy_shot_new(esp, sv));
+				}
+			}
+		}
+		return ();
+	}
+	for i in 0..6 {
+		let ep = enemy.point;
+		let shot_scal = 300.0;
+			let angle = i as f32 / 3.0;
+		let sv = [angle, shot_scal];
+		let sa = [0.0, -shot_scal];
+		let em = Vec::new();
+		let estr = "";
+
+		en_shots.push(Actor::enemy_shot_from(ep, sv, sa, em, estr));
 	}
 }

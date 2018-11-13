@@ -37,7 +37,7 @@ pub const STAGE_RIGHT: u32 = 830;
 // 0px 60px   830px 1280px
 
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 enum ActorType {
 	Player,
 	Enemy,
@@ -54,7 +54,7 @@ enum WindowState {
 	GameOver,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Actor {
 	actor_type: ActorType,
 	point: [f32; 2],
@@ -138,6 +138,24 @@ impl Actor {
 			memo: String::new(),
 		}
 	}
+	fn enemy_shot_from(
+		point: [f32; 2],
+		velocity: [f32; 2],
+		accel: [f32; 2],
+		moving: Vec<MovingElement>,
+		memo: &str,
+		) -> Actor {
+		Actor {
+			actor_type: ActorType::EnShot,
+			point: point,
+			velocity: velocity,
+			accel: accel,
+			bbox_size: 10.0,
+			life: 1.0,
+			moving: moving,
+			memo: memo.to_owned(),
+		}
+	}
 	fn update_point(actor: &mut Actor, dt: f32) {
 		let mut x_vel = actor.velocity[0];
 		let mut y_vel = actor.velocity[1];
@@ -184,6 +202,11 @@ impl Actor {
 		let s_left = STAGE_LEFT as f32 - 30.0;
 		let s_right = STAGE_RIGHT as f32 + 30.0;
 
+		let scalar = actor.accel[1];
+		let ragian = actor.accel[0] * PI;
+		let mut x_acc = scalar * ragian.sin();
+		let mut y_acc = scalar * ragian.cos();
+
 		let scalar = actor.velocity[1];
 		let ragian = actor.velocity[0] * PI;
 		let mut x_vel = scalar * ragian.sin();
@@ -198,6 +221,8 @@ impl Actor {
 			actor.life = 0.0;
 		}
 
+		actor.velocity[0] += x_acc * dt;
+		actor.velocity[1] += y_acc * dt;
 		actor.point[0] += x_vel * dt;
 		actor.point[1] += y_vel * dt;
 
@@ -420,13 +445,13 @@ impl ggez::event::EventHandler for MainState {
 				WindowState::GamingBoss => {
 					game_count_use = self.game_count[1];
 
-					// WindowState=GamingBoss 初期化
+					// GamingBoss 初期化
 					if game_count_use == 0 {
 						self.enemys = Vec::new();
 						self.enshots = Vec::new();
 						let mut boss_moving = vec![
 							MovingElement::boss_new(30, "waiting"),
-							MovingElement::boss_new(600, "b_six_rotate"),
+							//MovingElement::boss_new(600, "b_six_rotate"),
 							MovingElement::boss_new(600, "b_six_fireflower"),
 						];
 						self.boss.push(Actor::boss_new(
@@ -444,27 +469,27 @@ impl ggez::event::EventHandler for MainState {
 					// -------------------------
 
 					// Bossの更新
-					// Movingが空になったらGamingBoss終了
-					println!("{}", game_count_use);
-					println!("{:?}", self.boss);
+					// BossShotをmatch分岐で生成
+					//println!("{:?}", self.boss);
 					let mut bs = &mut self.boss;
-					if bs[0].moving.len() > 1 {
-						let pp = self.player.point;
-						let mut es = &mut self.enshots;
-						let gc = game_count_use;
-						match bs[0].memo.as_str() {
-							"b_six_rotate" => shot_type::b_six_rotate(&mut bs[0], pp, es, gc),
-							_ => (),
-						}
-						if bs[0].life < 0.0 || game_count_use == bs[0].moving[0].count {
+					let pp = self.player.point;
+					let mut es = &mut self.enshots;
+					let gc = game_count_use;
+					match bs[0].memo.as_str() {
+						"b_six_rotate" => shot_type::b_six_rotate(&mut bs[0], pp, es, gc),
+						"b_six_fireflower" => shot_type::b_six_fireflower(&mut bs[0], pp, es, gc),
+						_ => (),
+						//_ => println!("no shot"),
+					}
+
+					if bs[0].life < 0.0 || game_count_use == bs[0].moving[0].count {
+						if bs[0].moving.len() > 1 {
 							self.game_count[1] = 1;
 							bs[0].life = 300.0;
 							*es = Vec::new();
 							bs[0].moving.remove(0);
 							bs[0].memo = bs[0].moving[0].shot_type.clone();
-						}
-					} else {
-						if bs[0].life < 0.0 || game_count_use == bs[0].moving[0].count {
+						} else {
 							println!("boss end");
 							*bs = Vec::new();
 							self.window_state = WindowState::Gaming;
@@ -678,7 +703,7 @@ impl ggez::event::EventHandler for MainState {
 					let dis_str = format!("Time: {}", count_down);
 					graphics_draw(ctx, 18, &dis_str, [700.0 ,40.0]);
 				} else {
-					eprintln!("there is no boss");
+					//eprintln!("there is no boss");
 				}
 			}
 			WindowState::GameOver => {
