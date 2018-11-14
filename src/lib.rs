@@ -133,7 +133,7 @@ impl Actor {
 			point: point,
 			velocity: vel,
 			accel: [0.0; 2],
-			bbox_size: 20.0,
+			bbox_size: 30.0,
 			life: life,
 			moving: moving,
 			memo: memo.to_owned()
@@ -760,7 +760,7 @@ impl ggez::event::EventHandler for MainState {
 				ctx,
 				graphics::DrawMode::Fill,
 				graphics::Point2::new(point[0],point[1]),
-				20.0,
+				30.0,
 				0.1,
 			);
 		}
