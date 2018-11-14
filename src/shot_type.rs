@@ -67,32 +67,58 @@ pub fn b_six_rotate(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Ac
 pub fn b_six_fireflower(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, count: u32) {
 	// 5秒周期で射出
 	let shot_time = count % 300;
-	if count < 50 || shot_time != 50 {
+	if count >= 50 && shot_time == 50 {
+		// shot_timeの間隔でoriginshotを生成
+		for i in 0..6 {
+			let ep = enemy.point;
+			let shot_scal = 300.0;
+			let angle = i as f32 / 3.0;
+			let sv = [angle, shot_scal];
+			let sa = [0.0, -shot_scal];
+			let em = Vec::new();
+			let estr = "origin";
+
+			en_shots.push(Actor::enemy_shot_from(ep, sv, sa, em, estr));
+		}
+	} else {
 		if shot_time == 120 || shot_time == 180 {
-			let enshots_clone = en_shots.clone();
-			*en_shots = Vec::new();
-			for es in enshots_clone {
+			// ""と"origin", "split"を分離
+			// 前者は残し、後者は弾幕生成のために使われ消える
+			let mut while_i = 0;
+			let mut enshots_org_spl: Vec<Actor> = Vec::new();
+			loop {
+				let length = en_shots.len();
+				if while_i == length {
+					break;
+				}
+				if en_shots[while_i].memo == "".to_owned() {
+					while_i += 1;
+				} else {
+					enshots_org_spl.push(en_shots[while_i].clone());
+					en_shots.swap_remove(while_i);
+				}
+			}
+			for es in enshots_org_spl {
+				let mut push_shot_memo = "";
+				match es.memo.as_str() {
+					"origin" => push_shot_memo = "split",
+					"split" => push_shot_memo = "",
+					_ => (),
+				}
+
 				let esp = es.point;
 				let esv = es.velocity;
+				let esa = [0.0; 2];
+				let esm = Vec::new();
+				let esstr = push_shot_memo;
 				for i in 1..7 {
-					let sv = [esv[0] + 0.18 * i as f32, 250.0];
-					en_shots.push(Actor::enemy_shot_new(esp, sv));
-					let sv = [esv[0] - 0.18 * i as f32, 250.0];
-					en_shots.push(Actor::enemy_shot_new(esp, sv));
+					let esv = [esv[0] + 0.18 * i as f32, 250.0];
+					en_shots.push(Actor::enemy_shot_from(esp, esv, esa, esm.clone(), esstr));
+					let esv = [esv[0] - 0.18 * i as f32, 250.0];
+					en_shots.push(Actor::enemy_shot_from(esp, esv, esa, esm.clone(), esstr));
 				}
 			}
 		}
-		return ();
 	}
-	for i in 0..6 {
-		let ep = enemy.point;
-		let shot_scal = 300.0;
-			let angle = i as f32 / 3.0;
-		let sv = [angle, shot_scal];
-		let sa = [0.0, -shot_scal];
-		let em = Vec::new();
-		let estr = "";
 
-		en_shots.push(Actor::enemy_shot_from(ep, sv, sa, em, estr));
-	}
 }
