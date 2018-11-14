@@ -3,6 +3,7 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate serde;
 extern crate ggez;
+extern crate rand;
 
 use ggez::graphics;
 use ggez::event::{self, Keycode, Mod};
@@ -15,6 +16,7 @@ use serde_json::Value;
 use std::fs::File;
 use std::{path, env};
 use std::io::Read;
+use rand::Rng;
 
 pub mod shot_type;
 
@@ -359,6 +361,7 @@ pub struct MainState {
 	input: InputState,
 	game_count: [u32; 3],
 	// [道中, Boss, Pl無敵時間計測]
+	rand_v: Vec<f32>,
 	assets: Assets,
 	score: u32,
 }
@@ -399,12 +402,21 @@ impl MainState {
 
 		// moving countにstage countを加算
 		// Jsonが書きやすくなる
-			for stage in &mut stage1 {
-				for moving in &mut stage.moving {
-					moving.count += stage.count;
-				}
+		for stage in &mut stage1 {
+			for moving in &mut stage.moving {
+				moving.count += stage.count;
 			}
+		}
 		// ---------------------
+
+		// 乱数の配列を作成
+		let mut rng = rand::thread_rng();
+		let mut rand_v = vec![0.0; 100];
+		for i in rand_v.iter_mut() {
+			*i = rng.gen();
+		}
+		//println!("rand_v: {:?}", rand_v);
+		// --------------------
 
 		let s = MainState{
 			window_state: WindowState::Title,
@@ -415,6 +427,7 @@ impl MainState {
 			enshots: Vec::with_capacity(100),
 			stage: stage1,
 			input: InputState::new(),
+			rand_v: rand_v,
 			game_count: [GAME_COUNT, 0, 0],
 			assets: Assets::new(ctx).unwrap(),
 			score: 0,
