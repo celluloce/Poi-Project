@@ -699,7 +699,8 @@ impl ggez::event::EventHandler for MainState {
 	fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
 		graphics::clear(ctx);
 
-		let point = self.player.point;
+		let pl_point = self.player.point;
+		let mut game_count_use = 0;
 		let graphics_draw = |ctx: &mut Context, fs: u32, ds: &str, dp: [f32; 2]| {
 			let font = graphics::Font::new(ctx, "/SoberbaSerif-Regular.ttf", fs).unwrap();
 			let display = graphics::Text::new(ctx, ds, &font).unwrap();
@@ -728,8 +729,12 @@ impl ggez::event::EventHandler for MainState {
 				graphics::present(ctx);
 				return Ok(());
 			},
-			WindowState::Gaming => (),
+			WindowState::Gaming => {
+				game_count_use = self.game_count[0];
+
+			},
 			WindowState::GamingBoss => {
+				game_count_use = self.game_count[1];
 				// Print Boss life
 				let bs = &self.boss;
 				if self.boss.len() >= 1 {
@@ -748,13 +753,15 @@ impl ggez::event::EventHandler for MainState {
 		}
 
 		// drow player circle
-		graphics::circle(
-			ctx,
-			graphics::DrawMode::Fill,
-			graphics::Point2::new(point[0],point[1]),
-			10.0,
-			0.1,
-		);
+		if !(self.player.memo == "trans".to_owned() && game_count_use % 3 == 0) {
+			graphics::circle(
+				ctx,
+				graphics::DrawMode::Fill,
+				graphics::Point2::new(pl_point[0],pl_point[1]),
+				10.0,
+				0.1,
+			);
+		}
 
 		// drow shot rectangle
 		for act in &mut self.plshots {
