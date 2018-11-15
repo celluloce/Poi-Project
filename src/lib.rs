@@ -270,15 +270,60 @@ impl InputState {
 #[derive(Debug)]
 struct Assets {
 	frame_img: graphics::Image,
+	player_img: graphics::Image,
 }
 
 impl Assets {
 	fn new(ctx: &mut Context) -> GameResult<Assets> {
 		let frame_img = graphics::Image::new(ctx, "/Frame.png").unwrap();
+		let player_img = graphics::Image::new(ctx,"/s_player.png").unwrap();
 		Ok(Assets {
 			frame_img,
+			player_img,
 		})
 	}
+	fn draw_player (
+		ctx: &mut Context,
+		assets: &mut Assets,
+		player: &Actor,
+		) -> GameResult<()> {
+		let img = &mut assets.player_img;
+		let point = {
+			let x = player.point[0];
+			let y = player.point[1];
+			graphics::Point2::new(x, y)
+		};
+		let drawparams = graphics::DrawParam {
+			dest: point,
+			offset: graphics::Point2::new(0.5, 0.5),
+			..Default::default()
+		};
+		graphics::draw_ex(ctx, img, drawparams)
+	}
+	//fn draw_actor(
+	//	&mut self,
+	//	ctx: &mut Context,
+	//	assets: &mut Assets,
+	//	actor: &Actor,
+	//	world_coordes: (u32, u32)
+	//	) -> GameResult<()> {
+	//	let img = {
+	//		if actor.actor_type == ActorType {
+	//			&mut self.player_img
+	//		}
+	//	};
+	//	let point = {
+	//		let x = actor.point[0] + SCREEN_WIDTH as f32 / 2.0;
+	//		let y = actor.point[1] + SCREEN_HEIGHT as f32 / 2.0;
+	//		graphics::Point2::new(x, y)
+	//	};
+	//	let drawparams = graphics::DrawParam {
+	//		dest: point,
+	//		offset: graphics::Point2::new(0.5, 0.5),
+	//		..Default::default()
+	//	};
+	//	graphics::draw_ex(ctx, img, drawparams)
+	//}
 }
 
 // Jsonから取り込むためだけの構造体
@@ -639,7 +684,7 @@ impl ggez::event::EventHandler for MainState {
 
 			// Update Enemy Point----------
 			// Hit EnemyShots & Player
-			println!("{}", self.game_count[2]);
+			//println!("{}", self.game_count[2]);
 			for es in &mut self.enshots {
 				Actor::update_point_shot(es, seconds);
 
@@ -665,7 +710,7 @@ impl ggez::event::EventHandler for MainState {
 					if in_bbox(bs, ps) {
 						bs.life -= ps.life;
 						ps.life = 0.0;
-						if bs.life <= 0.0 {
+						if bs.life < 0.0 {
 							self.score += 30;
 						}
 					}
@@ -754,13 +799,16 @@ impl ggez::event::EventHandler for MainState {
 
 		// drow player circle
 		if !(self.player.memo == "trans".to_owned() && game_count_use % 3 == 0) {
-			graphics::circle(
-				ctx,
-				graphics::DrawMode::Fill,
-				graphics::Point2::new(pl_point[0],pl_point[1]),
-				10.0,
-				0.1,
-			);
+			Assets::draw_player(ctx, &mut self.assets, &self.player)?;
+			if self.input.shift {
+				graphics::circle(
+					ctx,
+					graphics::DrawMode::Fill,
+					graphics::Point2::new(pl_point[0],pl_point[1]),
+					10.0,
+					0.1,
+				);
+			}
 		}
 
 		// drow shot rectangle

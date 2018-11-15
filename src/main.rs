@@ -11,8 +11,8 @@ use std::{path, env};
 
 use poi_project::MainState;
 
-const SCREEN_WIDTH: u32 = 1280;
-const SCREEN_HEIGHT: u32 = 960;
+pub const SCREEN_WIDTH: u32 = 1280;
+pub const SCREEN_HEIGHT: u32 = 960;
 
 pub fn main() {
 	let mut cb = ContextBuilder::new("poi-project", "ggez")
