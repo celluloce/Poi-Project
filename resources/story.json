@@ -103,6 +103,26 @@
 			"moving": [
 				{"count": 0, "accel": [0.0, 0.0], "shot_type": "none"}
 			]
+		},
+		{
+			"count": [3600, 3840, 4080],
+			"char_type": "sk",
+			"number_class": [6, 20],
+			"point": [145.0, 0.0],
+			"shift_point": [100.0, 0.0],
+			"velocity": [0.0, 250.0],
+			"life": 5.0,
+			"moving": []
+		},
+		{
+			"count": [3740, 3980],
+			"char_type": "sk_l",
+			"number_class": [4, 20],
+			"point": [645.0, 0.0],
+			"shift_point": [-100.0, 0.0],
+			"velocity": [0.0, 250.0],
+			"life": 5.0,
+			"moving": []
 		}
 	]
 }
