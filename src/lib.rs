@@ -602,10 +602,9 @@ impl ggez::event::EventHandler for MainState {
 			// Jsonから取得したデータから、Enemyを生成
 			// char_type = "boss"が見つかった場合、WindowStateがGamingBossになる
 			// stage element number
-			for sen in 0..self.stage.len() {
-				let en_date = self.stage[sen].clone();
-				if en_date.count == self.game_count[0] {
-					match en_date.char_type.as_str() {
+			for st in &mut self.stage {
+				if st.count == self.game_count[0] {
+					match st.char_type.as_str() {
 						"boss" => {
 							self.window_state = WindowState::GamingBoss;
 							self.game_count[0] += 1;
@@ -613,21 +612,21 @@ impl ggez::event::EventHandler for MainState {
 						}
 						_ => (),
 					}
-					let p = [en_date.point[0], en_date.point[1]];
-					let v = [en_date.velocity[0], en_date.velocity[1]];
-					let l = en_date.life;
-					let m = en_date.moving.clone();
+					let p = [st.point[0], st.point[1]];
+					let v = [st.velocity[0], st.velocity[1]];
+					let l = st.life;
+					let m = st.moving.clone();
 					self.enemys.push(Actor::enemy_s_new(p, v, l, m));
 
-					if en_date.number_class[0] > 0 {
-						let add_count = en_date.number_class[1];
-						self.stage[sen].count += add_count;
-						self.stage[sen].number_class[0] -= 1;
-						self.stage[sen].point[0] += en_date.shift_point[0];
-						self.stage[sen].point[1] += en_date.shift_point[1];
+					if st.number_class[0] > 0 {
+						let add_count = st.number_class[1];
+						st.count += add_count;
+						st.number_class[0] -= 1;
+						st.point[0] += st.shift_point[0];
+						st.point[1] += st.shift_point[1];
 						// en date moving number
-						for edmn in 0..en_date.moving.len() {
-							self.stage[sen].moving[edmn].count += add_count;
+						for edmn in 0..st.moving.len() {
+							st.moving[edmn].count += add_count;
 						}
 					}
 				}
