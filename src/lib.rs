@@ -1,4 +1,3 @@
-// TODO: EnemyShot関数の引数が複雑なのでDefaultTraitを使う
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
@@ -416,8 +415,8 @@ pub struct MainState {
 	enshots: Vec<Actor>,
 	stage: Vec<Stage>,
 	input: InputState,
-	game_count: [u32; 3],
-	// [道中, Boss, Pl無敵時間計測]
+	game_count: [u32; 2],
+	// [道中, Boss]
 	rand_v: Vec<f32>,
 	assets: Assets,
 	score: u32,
@@ -487,7 +486,7 @@ impl MainState {
 			stage: stage1,
 			input: InputState::new(),
 			rand_v: rand_v,
-			game_count: [initial_count, 0, 0],
+			game_count: [initial_count, 0],
 			assets: Assets::new(ctx).unwrap(),
 			score: 0,
 		};
@@ -698,7 +697,6 @@ impl ggez::event::EventHandler for MainState {
 
 			// Update Enemy Point----------
 			// Hit EnemyShots & Player
-			//println!("{}", self.game_count[2]);
 			for es in &mut self.enshots {
 				Actor::update_point_shot(es, seconds);
 
@@ -709,11 +707,12 @@ impl ggez::event::EventHandler for MainState {
 					*pl = Actor::trans_pleyer_new(pl.life);
 				}
 			}
+			let p_count = &mut self.player.count;
 			if self.player.memo == "trans".to_owned() {
-				self.game_count[2] += 1;
-				if self.game_count[2] > 180 {
+				*p_count += 1;
+				if *p_count > 180 {
 					self.player.memo = "".to_owned();
-					self.game_count[2] = 0;
+					*p_count = 0;
 				}
 			}
 			// -------------------------
