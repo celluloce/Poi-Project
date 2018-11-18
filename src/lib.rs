@@ -511,8 +511,8 @@ impl ggez::event::EventHandler for MainState {
 						self.enshots = Vec::new();
 						let mut boss_moving = vec![
 							MovingElement::boss_new(30, "waiting"),
-							//MovingElement::boss_new(600, "b_six_rotate"),
-							MovingElement::boss_new(600, "b_six_fireflower"),
+							MovingElement::boss_new(1200, "b_six_rotate"),
+							MovingElement::boss_new(1200, "b_six_fireflower"),
 						];
 						self.boss.push(Actor::boss_new(
 									[450.0, 200.0],
@@ -545,7 +545,7 @@ impl ggez::event::EventHandler for MainState {
 					if bs[0].life < 0.0 || game_count_use == bs[0].moving[0].count {
 						if bs[0].moving.len() > 1 {
 							self.game_count[1] = 1;
-							bs[0].life = 300.0;
+							bs[0].life = 600.0;
 							*es = Vec::new();
 							bs[0].moving.remove(0);
 							bs[0].memo = bs[0].moving[0].shot_type.clone();
@@ -570,12 +570,12 @@ impl ggez::event::EventHandler for MainState {
 			let s_input = self.input;
 			if !s_input.shift {
 				// 高速移動
-				self.player.velocity[0] = (s_input.right + s_input.left) * 200.0;
-				self.player.velocity[1] = (s_input.up + s_input.down) * 200.0;
+				self.player.velocity[0] = (s_input.right + s_input.left) * 350.0;
+				self.player.velocity[1] = (s_input.up + s_input.down) * 350.0;
 			} else {
 				// 低速Shift移動
-				self.player.velocity[0] = (s_input.right + s_input.left) * 100.0;
-				self.player.velocity[1] = (s_input.up + s_input.down) * 100.0;
+				self.player.velocity[0] = (s_input.right + s_input.left) * 150.0;
+				self.player.velocity[1] = (s_input.up + s_input.down) * 150.0;
 			}
 
 			Actor::update_point(&mut self.player, seconds);
