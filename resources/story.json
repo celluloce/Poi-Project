@@ -1,4 +1,14 @@
 {"version": "1.0.3",
+	"_stage_length": [
+		"// +---+-------+-----+ 0px",
+		"// |   |       |     |",
+		"// +---+-------+-----+ 30px",
+		"// |   |       |     |",
+		"// |   |       |     |",
+		"// +---+-------+-----+ 930px",
+		"// +---+-------+-----+ 960px",
+		"// 0px 60px   830px 1280px"
+	],
 	"stage1": [
 		{
 			"count": [100, 500],
@@ -105,7 +115,7 @@
 			]
 		},
 		{
-			"count": [3600, 3840, 4080],
+			"count": [3600, 3840, 4080, 4320],
 			"char_type": "sk",
 			"number_class": [6, 20],
 			"point": [145.0, 0.0],
@@ -115,14 +125,70 @@
 			"moving": []
 		},
 		{
-			"count": [3740, 3980],
-			"char_type": "sk_l",
+			"count": [3740, 3980, 4220],
+			"char_type": "sk",
 			"number_class": [4, 20],
 			"point": [645.0, 0.0],
 			"shift_point": [-100.0, 0.0],
 			"velocity": [0.0, 250.0],
 			"life": 5.0,
 			"moving": []
+		},
+		{
+			"count": [3740, 3980, 4220],
+			"char_type": "m",
+			"number_class": [1, 40],
+			"point": [160.0, 0.0],
+			"shift_point": [50.0, 40.0],
+			"velocity": [0.0, 400.0],
+			"life": 5.0,
+			"moving": [
+				{"count": 0, "accel": [0.0, -200.0], "shot_type": "none"},
+				{"count": 120, "accel": [0.0, 0.0], "shot_type": ""},
+				{"count": 140, "accel": [-100.0, -600.0], "shot_type": "none"}
+			]
+		},
+		{
+			"count": [3760, 4000, 4240],
+			"char_type": "m",
+			"number_class": [0, 0],
+			"point": [200.0, -40.0],
+			"shift_point": [0.0, 0.0],
+			"velocity": [0.0, 400.0],
+			"life": 5.0,
+			"moving": [
+				{"count": 0, "accel": [0.0, -200.0], "shot_type": "none"},
+				{"count": 120, "accel": [0.0, 0.0], "shot_type": ""},
+				{"count": 140, "accel": [-100.0, -600.0], "shot_type": "none"}
+			]
+		},
+		{
+			"count": [3840, 4080, 4320],
+			"char_type": "m",
+			"number_class": [1, 40],
+			"point": [650.0, 0.0],
+			"shift_point": [50.0, 40.0],
+			"velocity": [0.0, 400.0],
+			"life": 5.0,
+			"moving": [
+				{"count": 0, "accel": [0.0, -200.0], "shot_type": "none"},
+				{"count": 120, "accel": [0.0, 0.0], "shot_type": ""},
+				{"count": 140, "accel": [100.0, -600.0], "shot_type": "none"}
+			]
+		},
+		{
+			"count": [3860, 4100, 4340],
+			"char_type": "m",
+			"number_class": [0, 0],
+			"point": [690.0, 0.0],
+			"shift_point": [0.0, 0.0],
+			"velocity": [0.0, 400.0],
+			"life": 5.0,
+			"moving": [
+				{"count": 0, "accel": [0.0, -200.0], "shot_type": "none"},
+				{"count": 120, "accel": [0.0, 0.0], "shot_type": ""},
+				{"count": 140, "accel": [100.0, -600.0], "shot_type": "none"}
+			]
 		}
 	]
 }
