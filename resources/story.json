@@ -1,16 +1,34 @@
-{"version": "1.0.3",
-	"_stage_length": [
-		"// +---+-------+-----+ 0px",
-		"// |   |       |     |",
-		"// +---+-------+-----+ 30px",
-		"// |   |       |     |",
-		"// |   |       |     |",
-		"// +---+-------+-----+ 930px",
-		"// +---+-------+-----+ 960px",
-		"// 0px 60px   830px 1280px"
+{"version": "1.0.4",
+	"initial_count": 3400,
+	"_stage_guide": [
+		"+---+-------+-----+ 0px",
+		"|   |       |     |",
+		"+---+-------+-----+ 30px",
+		"|   |       |     |",
+		"|   |       |     |",
+		"+---+-------+-----+ 930px",
+		"+---+-------+-----+ 960px",
+		"0px 60px   830px 1280px"
 	],
+	"_object_guide": {
+		"_comment" : "コメント（実行中は反映されない）",
+		"count": "出現count 複数入力で複数回出現 入力順序は雑でもいい",
+		"char_type": "Enemyの種類",
+		"number_class": "特に隊列で出現させるのに使う [隊列の数（最小値0）, 出現countのずれ]",
+		"point": "初期位置 [x, y]",
+		"shift_point": "隊列の位置のずれ [x, y]",
+		"velocity": "初期速度 [x, y]",
+		"life": "体力",
+		"moving": [
+			"Enemyの動き",
+			"count: 動きを加えるcount 出現countとの相対値",
+			"accel: 加速度 [x, y]",
+			"shot_type: 弾幕"
+		]
+	},
 	"stage1": [
 		{
+			"_comment" : [],
 			"count": [100, 500],
 			"char_type": "s",
 			"number_class": [5, 20],
@@ -23,6 +41,7 @@
 			]
 		},
 		{
+			"_comment" : [],
 			"count": [200, 600],
 			"char_type": "s",
 			"number_class": [5, 20],
@@ -35,6 +54,7 @@
 			]
 		},
 		{
+			"_comment" : [],
 			"count": [1000],
 			"char_type": "m",
 			"number_class": [3, 100],
@@ -49,6 +69,7 @@
 			]
 		},
 		{
+			"_comment" : [],
 			"count": [1050],
 			"char_type": "m",
 			"number_class": [3, 100],
@@ -63,6 +84,7 @@
 			]
 		},
 		{
+			"_comment" : [],
 			"count": [1500, 1900],
 			"char_type": "sk",
 			"number_class": [7, 30],
@@ -76,6 +98,7 @@
 			]
 		},
 		{
+			"_comment" : [],
 			"count": [1800, 2100],
 			"char_type": "sk",
 			"number_class": [7, 30],
@@ -89,6 +112,7 @@
 			]
 		},
 		{
+			"_comment" : [],
 			"count": [2500, 2700, 3000],
 			"char_type": "m",
 			"number_class": [7, 1],
@@ -103,6 +127,7 @@
 			]
 		},
 		{
+			"_comment" : [],
 			"count": [3500],
 			"char_type": "boss",
 			"number_class": [1, 0],
@@ -115,6 +140,7 @@
 			]
 		},
 		{
+			"_comment" : [],
 			"count": [3600, 3840, 4080, 4320],
 			"char_type": "sk",
 			"number_class": [6, 20],
@@ -125,6 +151,7 @@
 			"moving": []
 		},
 		{
+			"_comment" : [],
 			"count": [3740, 3980, 4220],
 			"char_type": "sk",
 			"number_class": [4, 20],
@@ -135,6 +162,7 @@
 			"moving": []
 		},
 		{
+			"_comment" : [],
 			"count": [3740, 3980, 4220],
 			"char_type": "m",
 			"number_class": [1, 40],
@@ -149,6 +177,7 @@
 			]
 		},
 		{
+			"_comment" : [],
 			"count": [3760, 4000, 4240],
 			"char_type": "m",
 			"number_class": [0, 0],
@@ -163,6 +192,7 @@
 			]
 		},
 		{
+			"_comment" : [],
 			"count": [3840, 4080, 4320],
 			"char_type": "m",
 			"number_class": [1, 40],
@@ -177,6 +207,7 @@
 			]
 		},
 		{
+			"_comment" : [],
 			"count": [3860, 4100, 4340],
 			"char_type": "m",
 			"number_class": [0, 0],

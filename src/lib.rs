@@ -20,7 +20,7 @@ use rand::Rng;
 
 pub mod shot_type;
 
-const GAME_COUNT: u32 = 3400;
+//const GAME_COUNT: u32 = 3500;
 
 pub const SCREEN_WIDTH: u32 = 1280;
 pub const SCREEN_HEIGHT: u32 = 960;
@@ -329,6 +329,7 @@ impl Assets {
 // Jsonから取り込むためだけの構造体
 #[derive(Deserialize, Debug, Clone, PartialEq)]
 struct StageFromJson {
+	_comment: Vec<String>,
 	count: Vec<u32>,
 	// イベントを起こすカウント数
 	char_type: String,
@@ -425,6 +426,8 @@ impl MainState {
 			= serde_json::from_value(sv.to_owned()).expect("serde json from value");
 		// ---------------------
 
+		let initial_count = v["initial_count"].as_u64().unwrap() as u32;
+
 		// StageFromJsonをStageに変換
 		//let mut buf_count: (u32, usize) = (stage_from_json[0].count, 0);
 		let mut stage1: Vec<Stage> = Vec::new();
@@ -473,7 +476,7 @@ impl MainState {
 			stage: stage1,
 			input: InputState::new(),
 			rand_v: rand_v,
-			game_count: [GAME_COUNT, 0, 0],
+			game_count: [initial_count, 0, 0],
 			assets: Assets::new(ctx).unwrap(),
 			score: 0,
 		};
