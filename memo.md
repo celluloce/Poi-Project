@@ -7,6 +7,14 @@
 > [+] : 取り組み中
 > [x] : 解決済み
 
+- [ ] StageBossを作れ
+　　- [ ] Clear画面作れ
+- [x] Player速度改善しろ
+- [ ] スコア記録実装しろ
+- [ ] アイテム実装しろ
+- [ ] Enemy毎にスコア変えろ
+
+## アーカイブ
 - actor
 	- [x] 当たり判定を導入
 		- [x] player, shot, enemyのコンストラクた書き換え
@@ -46,12 +54,12 @@
 - feald
 	- [ ] プレイ画面を作成
 		- [x] Frame画像を作成
-			- [+] 画面に描写
-				- [ ] AssetsStruct作成
-				- [ ] MainStateに組み込み
+			- [x] 画面に描写
+				- [x] AssetsStruct作成
+				- [x] MainStateに組み込み
 		- [x] フィールドの値を定める
 			- [x] Actorの行動範囲を制限
-	- [ ] プレイヤのライフを円で描写
+	- [x] プレイヤのライフを円で描写
 	- [x] Frameがついた 
 - other
 	- [ ] ややこしいのでy軸反転（現状では下がyが大きくなる）
@@ -59,17 +67,17 @@
 ## 時間計測
 ```
 struct State {
-	game_start_timer: Duration,
+       game_start_timer: Duration,
 }
 
 impl ggez::event::EventHandler for State {
-	fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-		let start = get_time_since_start(ctx);
-		println!("{:?}", start - self.game_start_timer);
-		self.game_start_timer = start;
-		
-		Ok(())
-	}
+       fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+               let start = get_time_since_start(ctx);
+               println!("{:?}", start - self.game_start_timer);
+               self.game_start_timer = start;
+               
+               Ok(())
+       }
 }
 ```
 
