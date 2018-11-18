@@ -310,30 +310,6 @@ impl Assets {
 		};
 		graphics::draw_ex(ctx, img, drawparams)
 	}
-	//fn draw_actor(
-	//	&mut self,
-	//	ctx: &mut Context,
-	//	assets: &mut Assets,
-	//	actor: &Actor,
-	//	world_coordes: (u32, u32)
-	//	) -> GameResult<()> {
-	//	let img = {
-	//		if actor.actor_type == ActorType {
-	//			&mut self.player_img
-	//		}
-	//	};
-	//	let point = {
-	//		let x = actor.point[0] + SCREEN_WIDTH as f32 / 2.0;
-	//		let y = actor.point[1] + SCREEN_HEIGHT as f32 / 2.0;
-	//		graphics::Point2::new(x, y)
-	//	};
-	//	let drawparams = graphics::DrawParam {
-	//		dest: point,
-	//		offset: graphics::Point2::new(0.5, 0.5),
-	//		..Default::default()
-	//	};
-	//	graphics::draw_ex(ctx, img, drawparams)
-	//}
 }
 
 // Jsonから取り込むためだけの構造体
@@ -455,7 +431,7 @@ impl MainState {
 				})
 			}
 		}
-		println!("Inputed stage: {:?}", stage1);
+		//println!("Inputed stage: {:?}", stage1);
 		// ---------------------
 
 		// moving countにstage countを加算
