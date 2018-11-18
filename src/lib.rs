@@ -1,3 +1,4 @@
+// TODO: EnemyShot関数の引数が複雑なのでDefaultTraitを使う
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
@@ -74,6 +75,9 @@ pub struct Actor {
 	moving: Vec<MovingElement>,
 	// 動作の記録
 	// Playerは多分使わない
+	count: u32,
+	// 経過countメモ
+	// TODO: 実装タイミングが遅かったので書き換え必須
 	memo: String,
 	// メモ用
 	// Enemy: 放つ弾幕の種類を書く
@@ -89,6 +93,7 @@ impl Actor {
 			bbox_size: 5.0,
 			life: 3.0,
 			moving: Vec::new(),
+			count: 0,
 			memo: String::new(),
 		}
 	}
@@ -101,6 +106,7 @@ impl Actor {
 			bbox_size: 0.0,
 			life: life,
 			moving: Vec::new(),
+			count: 0,
 			memo: String::from("trans"),
 		}
 
@@ -114,6 +120,7 @@ impl Actor {
 			bbox_size: 10.0,
 			life: 1.0,
 			moving: Vec::new(),
+			count: 0,
 			memo: String::new(),
 		}
 	}
@@ -126,6 +133,7 @@ impl Actor {
 			bbox_size: 20.0,
 			life: life,
 			moving: moving,
+			count: 0,
 			memo: String::new(),
 		}
 	}
@@ -138,6 +146,7 @@ impl Actor {
 			bbox_size: 30.0,
 			life: life,
 			moving: moving,
+			count: 0,
 			memo: memo.to_owned()
 		}
 	}
@@ -150,6 +159,7 @@ impl Actor {
 			bbox_size: 10.0,
 			life: 1.0,
 			moving: Vec::new(),
+			count: 0,
 			memo: String::new(),
 		}
 	}
@@ -168,6 +178,7 @@ impl Actor {
 			bbox_size: 10.0,
 			life: 1.0,
 			moving: moving,
+			count: 0,
 			memo: memo.to_owned(),
 		}
 	}
