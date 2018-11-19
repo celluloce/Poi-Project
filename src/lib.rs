@@ -280,24 +280,43 @@ impl InputState {
 #[derive(Debug)]
 struct Assets {
 	frame_img: graphics::Image,
-	player_img: graphics::Image,
+	player_front_img: graphics::Image,
+	player_right_img: graphics::Image,
+	player_left_img: graphics::Image,
 }
 
 impl Assets {
 	fn new(ctx: &mut Context) -> GameResult<Assets> {
 		let frame_img = graphics::Image::new(ctx, "/Frame.png").unwrap();
-		let player_img = graphics::Image::new(ctx,"/s_player.png").unwrap();
+		let player_front_img = graphics::Image::new(ctx,"/player_front.png").unwrap();
+		let player_left_img = graphics::Image::new(ctx,"/player_left.png").unwrap();
+		let player_right_img = graphics::Image::new(ctx,"/player_right.png").unwrap();
 		Ok(Assets {
 			frame_img,
-			player_img,
+			player_front_img,
+			player_right_img,
+			player_left_img
 		})
 	}
 	fn draw_player (
 		ctx: &mut Context,
 		assets: &mut Assets,
 		player: &Actor,
+		input: InputState,
 		) -> GameResult<()> {
-		let img = &mut assets.player_img;
+		let mut img: &mut graphics::Image;
+		let mut front = false;
+		if input.right && input.left || front {
+			img = &mut assets.player_front_img;
+		} else {
+			if input.right {
+				img = &mut assets.player_right_img;
+			} else if input.left {
+				img = &mut assets.player_left_img;
+			} else {
+				img = &mut assets.player_front_img;
+			}
+		}
 		let point = {
 			let x = player.point[0];
 			let y = player.point[1];
@@ -812,7 +831,7 @@ impl ggez::event::EventHandler for MainState {
 
 		// drow player circle
 		if !(self.player.memo == "trans".to_owned() && game_count_use % 3 == 0) {
-			Assets::draw_player(ctx, &mut self.assets, &self.player)?;
+			Assets::draw_player(ctx, &mut self.assets, &self.player, self.input)?;
 			if self.input.shift {
 				graphics::circle(
 					ctx,
