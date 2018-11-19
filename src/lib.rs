@@ -256,10 +256,10 @@ impl Actor {
 
 #[derive(Debug, Clone, Copy)]
 struct InputState {
-	up: f32,
-	down: f32,
-	right: f32,
-	left: f32,
+	up: bool,
+	down: bool,
+	right: bool,
+	left: bool,
 	shift: bool,
 	shot: bool,
 }
@@ -267,10 +267,10 @@ struct InputState {
 impl InputState {
 	fn new() -> InputState {
 		InputState {
-			up: 0.0,
-			down: 0.0,
-			right: 0.0,
-			left: 0.0,
+			up: false,
+			down: false,
+			right: false,
+			left: false,
 			shift: false,
 			shot: false,
 		}
@@ -569,15 +569,34 @@ impl ggez::event::EventHandler for MainState {
 			// キーインプットに応じて、Playerのvelocityを書き換える
 			// Playerの位置を更新
 			// PlayerLifeがゼロの時、WindowStateがGameoverになる
-			let s_input = self.input;
-			if !s_input.shift {
+			if self.input.up && self.input.down {
+				self.player.velocity[1] == 0.0;
+			} else {
+				if self.input.up {
+					self.player.velocity[1] == -1.0;
+				}
+				if self.input.down {
+					self.player.velocity[1] == 1.0;
+				}
+			}
+			if self.input.right && self.input.left {
+				self.player.velocity[0] == 0.0;
+			} else {
+				if self.input.right {
+					self.player.velocity[0] == 1.0;
+				}
+				if self.input.left {
+					self.player.velocity[0] == -1.0;
+				}
+			}
+			if !self.input.shift {
 				// 高速移動
-				self.player.velocity[0] = (s_input.right + s_input.left) * 350.0;
-				self.player.velocity[1] = (s_input.up + s_input.down) * 350.0;
+				self.player.velocity[0] *= 350.0;
+				self.player.velocity[1] *= 350.0;
 			} else {
 				// 低速Shift移動
-				self.player.velocity[0] = (s_input.right + s_input.left) * 150.0;
-				self.player.velocity[1] = (s_input.up + s_input.down) * 150.0;
+				self.player.velocity[0] *= 150.0;
+				self.player.velocity[1] *= 150.0;
 			}
 
 			Actor::update_point(&mut self.player, seconds);
@@ -871,48 +890,24 @@ impl ggez::event::EventHandler for MainState {
 
 	fn key_down_event(&mut self, ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
 		match keycode {
-			Keycode::Up => {
-				self.input.up = -1.0;
-			}
-			Keycode::Down => {
-				self.input.down = 1.0;
-			}
-			Keycode::Right => {
-				self.input.right = 1.0;
-			}
-			Keycode::Left => {
-				self.input.left = -1.0;
-			}
-			Keycode::LShift => {
-				self.input.shift = true;
-			}
-			Keycode::Z => {
-				self.input.shot = true;
-			}
+			Keycode::Up => self.input.up = true,
+			Keycode::Down => self.input.down = true,
+			Keycode::Right => self.input.right = true,
+			Keycode::Left => self.input.left = true,
+			Keycode::LShift => self.input.shift = true,
+			Keycode::Z => self.input.shot = true,
 			_ => ()
 		}
 	}
 
 	fn key_up_event(&mut self, ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
 		match keycode {
-			Keycode::Up => {
-				self.input.up = 0.0;
-			}
-			Keycode::Down => {
-				self.input.down = 0.0;
-			}
-			Keycode::Right => {
-				self.input.right = 0.0;
-			}
-			Keycode::Left => {
-				self.input.left = 0.0;
-			}
-			Keycode::LShift => {
-				self.input.shift = false;
-			}
-			Keycode::Z => {
-				self.input.shot = false;
-			}
+			Keycode::Up => self.input.up = false,
+			Keycode::Down => self.input.down = false,
+			Keycode::Right => self.input.right = false,
+			Keycode::Left => self.input.left = false,
+			Keycode::LShift => self.input.shift = false,
+			Keycode::Z => self.input.shot = false,
 			_ => ()
 		}
 	}
