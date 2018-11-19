@@ -569,26 +569,28 @@ impl ggez::event::EventHandler for MainState {
 			// キーインプットに応じて、Playerのvelocityを書き換える
 			// Playerの位置を更新
 			// PlayerLifeがゼロの時、WindowStateがGameoverになる
-			if self.input.up && self.input.down {
-				self.player.velocity[1] == 0.0;
+			if self.input.up {
+				self.player.velocity[1] = -1.0;
+			} else if self.input.down {
+				self.player.velocity[1] = 1.0;
 			} else {
-				if self.input.up {
-					self.player.velocity[1] == -1.0;
-				}
-				if self.input.down {
-					self.player.velocity[1] == 1.0;
-				}
+				self.player.velocity[1] = 0.0;
+			}
+			if self.input.right {
+				self.player.velocity[0] = 1.0;
+			} else if self.input.left {
+				self.player.velocity[0] = -1.0;
+			} else {
+				self.player.velocity[0] = 0.0;
+			}
+
+			if self.input.up && self.input.down {
+				self.player.velocity[1] = 0.0;
 			}
 			if self.input.right && self.input.left {
-				self.player.velocity[0] == 0.0;
-			} else {
-				if self.input.right {
-					self.player.velocity[0] == 1.0;
-				}
-				if self.input.left {
-					self.player.velocity[0] == -1.0;
-				}
+				self.player.velocity[0] = 0.0;
 			}
+
 			if !self.input.shift {
 				// 高速移動
 				self.player.velocity[0] *= 350.0;
