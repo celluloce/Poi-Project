@@ -1,5 +1,6 @@
 use Actor;
 use MainState;
+use rand::{Rng, ThreadRng};
 use std::f32;
 use std::f32::consts::PI;
 // Shot: [Angle(0.0 <= x < 2.0, 真下が0, 右回り), scalar]

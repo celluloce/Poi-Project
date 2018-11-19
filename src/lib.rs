@@ -16,7 +16,7 @@ use serde_json::Value;
 use std::fs::File;
 use std::{path, env};
 use std::io::Read;
-use rand::Rng;
+use rand::{Rng, ThreadRng};
 
 pub mod shot_type;
 
@@ -393,7 +393,8 @@ pub struct MainState {
 	input: InputState,
 	game_count: [u32; 2],
 	// [道中, Boss]
-	rand_v: Vec<f32>,
+	//rand_v: Vec<f32>,
+	rand: ThreadRng,
 	assets: Assets,
 	score: u32,
 }
@@ -444,11 +445,11 @@ impl MainState {
 		// ---------------------
 
 		// 乱数の配列を作成
-		let mut rng = rand::thread_rng();
-		let mut rand_v = vec![0.0; 100];
-		for i in rand_v.iter_mut() {
-			*i = rng.gen();
-		}
+		let rng = rand::thread_rng();
+		//let mut rand_v = vec![0.0; 100];
+		//for i in rand_v.iter_mut() {
+		//	*i = rng.gen();
+		//}
 		//println!("rand_v: {:?}", rand_v);
 		// --------------------
 
@@ -461,7 +462,8 @@ impl MainState {
 			enshots: Vec::with_capacity(100),
 			stage: stage1,
 			input: InputState::new(),
-			rand_v: rand_v,
+			//rand_v: rand_v,
+			rand: rng,
 			game_count: [initial_count, 0],
 			assets: Assets::new(ctx).unwrap(),
 			score: 0,
@@ -649,6 +651,7 @@ impl ggez::event::EventHandler for MainState {
 				let pp = self.player.point;
 				let mut es = &mut self.enshots;
 				let gc = game_count_use;
+				let rn = &self.rand;
 				match e.memo.as_str() {
 					"six" => shot_type::six(e, pp, es, gc),
 					_ => (),
