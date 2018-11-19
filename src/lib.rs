@@ -654,6 +654,7 @@ impl ggez::event::EventHandler for MainState {
 				let rn = &self.rand;
 				match e.memo.as_str() {
 					"six" => shot_type::six(e, pp, es, gc),
+					"four-two_disp"=> shot_type::four_two_disp(e, pp, es, gc, rn),
 					_ => (),
 				}
 

@@ -21,8 +21,8 @@ pub fn six(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, cou
 		let mut shot_scal = 100.0;
 		let angle = (i as f32) / 3.0 + get_angle_from_points(enemy.point, p_point);
 
-		for i in 1..=3 {
-			let sv = [angle, shot_scal + 40.0 * i as f32];
+		for j in 1..=3 {
+			let sv = [angle, shot_scal + 40.0 * j as f32];
 			en_shots.push(Actor::enemy_shot_new(ep, sv));
 		}
 
@@ -39,6 +39,23 @@ pub fn six(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, cou
 			let sv = [angle - 1.32, shot_scal];
 			en_shots.push(Actor::enemy_shot_new(ep, sv));
 
+		}
+	}
+	enemy.memo = String::new();
+}
+
+pub fn four_two_disp(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, count: u32, rand: &ThreadRng) {
+	let r = rand.to_owned().gen::<f32>();
+	for i in 0..4 {
+		let ep = enemy.point;
+		let mut shot_scal = 120.0;
+		let angle = (i as f32) / 2.0 + get_angle_from_points(enemy.point, p_point);
+		let rand_angle = angle + 0.1 * (r - 0.5);
+		for j in 0..7 {
+			let sv = [rand_angle + 0.05, shot_scal + 30.0 * j as f32];
+			en_shots.push(Actor::enemy_shot_new(ep, sv));
+			let sv = [rand_angle - 0.05, shot_scal + 30.0 * j as f32];
+			en_shots.push(Actor::enemy_shot_new(ep, sv));
 		}
 	}
 	enemy.memo = String::new();

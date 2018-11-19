@@ -127,7 +127,7 @@
 			]
 		},
 		{
-			"_comment" : [],
+			"_comment" : ["中ボス"],
 			"count": [3500],
 			"char_type": "boss",
 			"number_class": [1, 0],
@@ -140,7 +140,10 @@
 			]
 		},
 		{
-			"_comment" : [],
+			"_comment" : [
+				"後半開始",
+				"ぎざぎざ隊の左から右"
+			],
 			"count": [3600, 3840, 4080, 4320],
 			"char_type": "sk",
 			"number_class": [6, 20],
@@ -151,7 +154,9 @@
 			"moving": []
 		},
 		{
-			"_comment" : [],
+			"_comment" : [
+				"ぎざぎざ隊の右から左"
+			],
 			"count": [3740, 3980, 4220],
 			"char_type": "sk",
 			"number_class": [4, 20],
@@ -162,7 +167,11 @@
 			"moving": []
 		},
 		{
-			"_comment" : [],
+			"_comment" : [
+				"ぎざぎざに紛れて出てくる 左側",
+				"3体出てくる内2体",
+				"four-two_disp: 自機狙い 4方向 1方向に2方向追加"
+			],
 			"count": [3740, 3980, 4220],
 			"char_type": "m",
 			"number_class": [1, 40],
@@ -172,12 +181,15 @@
 			"life": 5.0,
 			"moving": [
 				{"count": 0, "accel": [0.0, -200.0], "shot_type": "none"},
-				{"count": 120, "accel": [0.0, 0.0], "shot_type": ""},
+				{"count": 120, "accel": [0.0, 0.0], "shot_type": "four-two_disp"},
 				{"count": 140, "accel": [-100.0, -600.0], "shot_type": "none"}
 			]
 		},
 		{
-			"_comment" : [],
+			"_comment" : [
+				"ぎざぎざに紛れて出てくる 左側",
+				"3体出てくる内1体"
+			],
 			"count": [3760, 4000, 4240],
 			"char_type": "m",
 			"number_class": [0, 0],
@@ -187,12 +199,15 @@
 			"life": 5.0,
 			"moving": [
 				{"count": 0, "accel": [0.0, -200.0], "shot_type": "none"},
-				{"count": 120, "accel": [0.0, 0.0], "shot_type": ""},
+				{"count": 120, "accel": [0.0, 0.0], "shot_type": "four-two_disp"},
 				{"count": 140, "accel": [-100.0, -600.0], "shot_type": "none"}
 			]
 		},
 		{
-			"_comment" : [],
+			"_comment" : [
+				"ぎざぎざに紛れて出てくる 右側",
+				"3体出てくる内2体"
+			],
 			"count": [3840, 4080, 4320],
 			"char_type": "m",
 			"number_class": [1, 40],
@@ -202,12 +217,15 @@
 			"life": 5.0,
 			"moving": [
 				{"count": 0, "accel": [0.0, -200.0], "shot_type": "none"},
-				{"count": 120, "accel": [0.0, 0.0], "shot_type": ""},
+				{"count": 120, "accel": [0.0, 0.0], "shot_type": "four-two_disp"},
 				{"count": 140, "accel": [100.0, -600.0], "shot_type": "none"}
 			]
 		},
 		{
-			"_comment" : [],
+			"_comment" : [
+				"ぎざぎざに紛れて出てくる 右側",
+				"3体出てくる内1体"
+			],
 			"count": [3860, 4100, 4340],
 			"char_type": "m",
 			"number_class": [0, 0],
@@ -217,7 +235,7 @@
 			"life": 5.0,
 			"moving": [
 				{"count": 0, "accel": [0.0, -200.0], "shot_type": "none"},
-				{"count": 120, "accel": [0.0, 0.0], "shot_type": ""},
+				{"count": 120, "accel": [0.0, 0.0], "shot_type": "four-two_disp"},
 				{"count": 140, "accel": [100.0, -600.0], "shot_type": "none"}
 			]
 		}
