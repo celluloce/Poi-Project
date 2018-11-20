@@ -522,28 +522,79 @@ impl ggez::event::EventHandler for MainState {
 				WindowState::Gaming => {
 					self.game_count[0] += 1;
 					game_count_use = self.game_count[0];
+
+					// Jsonから取得したデータから、Enemyを生成
+					// stage element number
+					for st in &mut self.stage {
+						if st.count == self.game_count[0] {
+							// char_type = "boss"が見つかった場合、WindowStateがGamingBossになる
+							match st.char_type.as_str() {
+								b_type @  "boss" | b_type @ "m_boss" => {
+									// Window切り替え
+									self.window_state = WindowState::GamingBoss;
+									self.game_count[0] += 1;
+									// -------------------------
+
+									// GamingBoss 初期化
+									self.enemys = Vec::new();
+									self.enshots = Vec::new();
+									let mut boss_moving: Vec<MovingElement>;
+									match b_type {
+										"m_boss" => {
+											boss_moving = vec![
+												MovingElement::boss_new(30, "waiting"),
+												MovingElement::boss_new(1200, "b_six_rotate"),
+												MovingElement::boss_new(1200, "b_six_fireflower"),
+											];
+										},
+										"boss" => {
+											boss_moving = vec![
+												MovingElement::boss_new(30, "waiting"),
+												MovingElement::boss_new(1200, "b_six_rotate"),
+												MovingElement::boss_new(1200, "b_six_fireflower"),
+											];
+										},
+										_ => boss_moving = Vec::new(),
+									}
+									self.boss.push(Actor::boss_new(
+												[450.0, 200.0],
+												[0.0, 0.0],
+												100.0,
+												boss_moving,
+												"",
+											));
+									// -------------------------
+									continue;
+								}
+								_ => (),
+							}
+							// --------------------
+							let p = [st.point[0], st.point[1]];
+							let v = [st.velocity[0], st.velocity[1]];
+							let l = st.life;
+							let m = st.moving.clone();
+							self.enemys.push(Actor::enemy_s_new(p, v, l, m));
+
+							if st.number_class[0] > 0 {
+								let add_count = st.number_class[1];
+								st.count += add_count;
+								st.number_class[0] -= 1;
+								st.point[0] += st.shift_point[0];
+								st.point[1] += st.shift_point[1];
+								// en date moving number
+								for edmn in 0..st.moving.len() {
+									st.moving[edmn].count += add_count;
+								}
+							}
+						}
+					}
+					self.stage.retain(|c| c.number_class[0] >= 0);
+					// --------------------
+
 				}
 				WindowState::GamingBoss => {
 					game_count_use = self.game_count[1];
 
-					// GamingBoss 初期化
-					if game_count_use == 0 {
-						self.enemys = Vec::new();
-						self.enshots = Vec::new();
-						let mut boss_moving = vec![
-							MovingElement::boss_new(30, "waiting"),
-							MovingElement::boss_new(1200, "b_six_rotate"),
-							MovingElement::boss_new(1200, "b_six_fireflower"),
-						];
-						self.boss.push(Actor::boss_new(
-									[450.0, 200.0],
-									[0.0, 0.0],
-									100.0,
-									boss_moving,
-									"",
-								));
-					}
-					// -------------------------
 
 					// Update boss counter----------
 					self.game_count[1] += 1;
@@ -640,42 +691,6 @@ impl ggez::event::EventHandler for MainState {
 				Actor::update_point_shot(s, seconds);
 			}
 			// -------------------------
-
-			// Jsonから取得したデータから、Enemyを生成
-			// char_type = "boss"が見つかった場合、WindowStateがGamingBossになる
-			// stage element number
-			for st in &mut self.stage {
-				if st.count == self.game_count[0] {
-					match st.char_type.as_str() {
-						"boss" => {
-							self.window_state = WindowState::GamingBoss;
-							self.game_count[0] += 1;
-							continue;
-						}
-						_ => (),
-					}
-					let p = [st.point[0], st.point[1]];
-					let v = [st.velocity[0], st.velocity[1]];
-					let l = st.life;
-					let m = st.moving.clone();
-					self.enemys.push(Actor::enemy_s_new(p, v, l, m));
-
-					if st.number_class[0] > 0 {
-						let add_count = st.number_class[1];
-						st.count += add_count;
-						st.number_class[0] -= 1;
-						st.point[0] += st.shift_point[0];
-						st.point[1] += st.shift_point[1];
-						// en date moving number
-						for edmn in 0..st.moving.len() {
-							st.moving[edmn].count += add_count;
-						}
-					}
-				}
-			}
-			self.stage.retain(|c| c.number_class[0] >= 0);
-			// --------------------
-
 			// Enemyの更新
 			// - Jsonから取得したデータから、Enemyの動作を書き換え
 			// - 弾幕を張る

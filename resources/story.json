@@ -1,5 +1,5 @@
 {"version": "1.0.4",
-	"initial_count": 0,
+	"initial_count": 4400,
 	"_stage_guide": [
 		"+---+-------+-----+ 0px",
 		"|   |       |     |",
@@ -129,7 +129,7 @@
 		{
 			"_comment" : ["中ボス"],
 			"count": [3500],
-			"char_type": "boss",
+			"char_type": "m_boss",
 			"number_class": [1, 0],
 			"point": [350.0, 0.0],
 			"shift_point": [0.0, 0.0],
@@ -237,6 +237,19 @@
 				{"count": 0, "accel": [0.0, -200.0], "shot_type": "none"},
 				{"count": 120, "accel": [0.0, 0.0], "shot_type": "four-two_disp"},
 				{"count": 140, "accel": [100.0, -600.0], "shot_type": "none"}
+			]
+		},
+		{
+			"_comment" : ["ステージボス"],
+			"count": [4600],
+			"char_type": "boss",
+			"number_class": [1, 0],
+			"point": [350.0, 0.0],
+			"shift_point": [0.0, 0.0],
+			"velocity": [0.0, 400.0],
+			"life": 5.0,
+			"moving": [
+				{"count": 0, "accel": [0.0, 0.0], "shot_type": "none"}
 			]
 		}
 	]
