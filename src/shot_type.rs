@@ -137,5 +137,8 @@ pub fn b_six_fireflower(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Ve
 			}
 		}
 	}
+}
 
+pub fn b_carpet_bomb(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, count: u32, rand: &ThreadRng) {
+	println!("樹端爆撃");
 }

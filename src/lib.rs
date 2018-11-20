@@ -551,6 +551,7 @@ impl ggez::event::EventHandler for MainState {
 											boss_moving = vec![
 												MovingElement::boss_new(30, "waiting"),
 												MovingElement::boss_new(1200, "b_six_rotate"),
+												MovingElement::boss_new(1200, "b_carpet_bomb"),
 												MovingElement::boss_new(1200, "b_six_fireflower"),
 											];
 										},
@@ -607,9 +608,11 @@ impl ggez::event::EventHandler for MainState {
 					let pp = self.player.point;
 					let mut es = &mut self.enshots;
 					let gc = game_count_use;
+					let rn = &self.rand;
 					match bs[0].memo.as_str() {
 						"b_six_rotate" => shot_type::b_six_rotate(&mut bs[0], pp, es, gc),
 						"b_six_fireflower" => shot_type::b_six_fireflower(&mut bs[0], pp, es, gc),
+						"b_carpet_bomb" => shot_type::b_carpet_bomb(&mut bs[0], pp, es, gc, rn),
 						_ => (),
 						//_ => println!("no shot"),
 					}
