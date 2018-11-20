@@ -62,7 +62,7 @@ pub fn four_two_disp(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<A
 }
 
 pub fn b_six_rotate(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, count: u32) {
-	if count < 50 || count % 3 == 0 {
+	if count < 50 || count % 3 != 0 {
 		return ();
 	}
 	for i in 0..6 {
@@ -70,8 +70,7 @@ pub fn b_six_rotate(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Ac
 			let round_per_sec = 1.0 / 30.0;
 			let count_max60 = (count % 60) as f32 ;
 			let round_1sec = count_max60 * round_per_sec;
-			round_1sec + (count as f32 / 4312.9)
-			// ちょっとずらすために変な値を入れる
+			round_1sec + (count as f32 * 0.00783)
 		};
 		let ep = enemy.point;
 		let shot_scal = 300.0;
