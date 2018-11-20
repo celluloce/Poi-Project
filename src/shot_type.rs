@@ -87,15 +87,16 @@ pub fn b_six_fireflower(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Ve
 	if count >= 50 && shot_time == 50 {
 		// shot_timeの間隔でoriginshotを生成
 		for i in 0..6 {
-			let ep = enemy.point;
-			let shot_scal = 300.0;
 			let angle = i as f32 / 3.0;
-			let sv = [angle, shot_scal];
-			let sa = [0.0, -shot_scal];
-			let em = Vec::new();
-			let estr = "origin";
 
-			en_shots.push(Actor::enemy_shot_from(ep, sv, sa, em, estr));
+			let push_shot = Actor {
+				point: enemy.point,
+				velocity: [angle, 300.0],
+				accel: [0.0, -300.0],
+				memo: "origin".to_owned(),
+				..Default::default()
+			};
+			en_shots.push(push_shot);
 		}
 	} else {
 		if shot_time == 120 || shot_time == 180 {
@@ -123,16 +124,18 @@ pub fn b_six_fireflower(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Ve
 					_ => (),
 				}
 
-				let esp = es.point;
-				let esv = es.velocity;
-				let esa = [0.0; 2];
-				let esm = Vec::new();
-				let esstr = push_shot_memo;
+				let mut push_shot = Actor {
+					point: es.point,
+					velocity: es.velocity,
+					memo: push_shot_memo.to_owned(),
+					..Default::default()
+				};
 				for i in 1..7 {
-					let esv = [esv[0] + 0.18 * i as f32, 250.0];
-					en_shots.push(Actor::enemy_shot_from(esp, esv, esa, esm.clone(), esstr));
-					let esv = [esv[0] - 0.18 * i as f32, 250.0];
-					en_shots.push(Actor::enemy_shot_from(esp, esv, esa, esm.clone(), esstr));
+					push_shot.velocity[1] = 250.0;
+					push_shot.velocity[0] += 0.18 * i as f32;
+					en_shots.push(push_shot.clone());
+					push_shot.velocity[0] -= 0.18 * i as f32;
+					en_shots.push(push_shot.clone());
 				}
 			}
 		}

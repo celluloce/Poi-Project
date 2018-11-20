@@ -162,25 +162,6 @@ impl Actor {
 			memo: String::new(),
 		}
 	}
-	fn enemy_shot_from(
-		point: [f32; 2],
-		velocity: [f32; 2],
-		accel: [f32; 2],
-		moving: Vec<MovingElement>,
-		memo: &str,
-		) -> Actor {
-		Actor {
-			actor_type: ActorType::EnShot,
-			point: point,
-			velocity: velocity,
-			accel: accel,
-			bbox_size: 10.0,
-			life: 1.0,
-			moving: moving,
-			count: 0,
-			memo: memo.to_owned(),
-		}
-	}
 	fn update_point(actor: &mut Actor, dt: f32) {
 		let mut x_vel = actor.velocity[0];
 		let mut y_vel = actor.velocity[1];
@@ -251,6 +232,22 @@ impl Actor {
 		actor.point[0] += x_vel * dt;
 		actor.point[1] += y_vel * dt;
 
+	}
+}
+
+impl Default for Actor {
+	fn default() -> Actor {
+		Actor {
+			actor_type: ActorType::EnShot,
+			point: [0.0; 2],
+			velocity: [0.0; 2],
+			accel: [0.0; 2],
+			bbox_size: 10.0,
+			life: 1.0,
+			moving: Vec::new(),
+			count: 0,
+			memo: String::new(),
+		}
 	}
 }
 
