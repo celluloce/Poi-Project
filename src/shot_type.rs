@@ -1,5 +1,6 @@
 use Actor;
 use MainState;
+use MovingElement;
 use rand::{Rng, ThreadRng};
 use std::f32;
 use std::f32::consts::PI;
@@ -142,6 +143,54 @@ pub fn b_six_fireflower(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Ve
 	}
 }
 
-pub fn b_carpet_bomb(enemy: &mut Actor, p_point: [f32; 2],  en_shots: &mut Vec<Actor>, count: u32, rand: &ThreadRng) {
-	println!("樹端爆撃");
+pub fn b_carpet_bomb(
+	enemy: &mut Actor,
+	p_point: [f32; 2],
+	en_shots: &mut Vec<Actor>,
+	count: u32,
+	rand: &ThreadRng) {
+	let origin_rate = count % 30;
+
+	if origin_rate == 0 {
+		let shot_scal = 300.0;
+		let angle = 2.0 * rand.to_owned().gen::<f32>();
+
+		let mut push_shot = Actor {
+			point: enemy.point,
+			velocity: [angle, shot_scal],
+			accel: [0.0, 0.0],
+			moving: vec![
+				MovingElement::new(30, [0.7, 0.0], "carpet_origin"),
+				MovingElement::new(130, [0.0, 0.0], "carpet_origin"),
+			],
+			memo: "".to_owned(),
+			..Default::default()
+		};
+		en_shots.push(push_shot.clone());
+		push_shot.velocity[0] += 2.0 / 3.0;
+		en_shots.push(push_shot.clone());
+		push_shot.velocity[0] += 2.0 / 3.0;
+		en_shots.push(push_shot.clone());
+	}
+	let split_rate = count % 120;
+	for es in en_shots.clone() {
+		// carpet_origin弾のみ弾幕を生成
+		match es.memo.as_str() {
+			"carpet_origin" => (),
+			_ => continue,
+		}
+		if split_rate > 80 && count % 5 == 0 {
+			let mut push_shot = Actor {
+				point: es.point,
+				velocity: es.velocity,
+				memo: "".to_owned(),
+				..Default::default()
+			};
+			push_shot.velocity[1] = 250.0;
+			push_shot.velocity[0] += 0.7;
+			en_shots.push(push_shot.clone());
+			push_shot.velocity[0] -= 1.4;
+			en_shots.push(push_shot.clone());
+		}
+	}
 }

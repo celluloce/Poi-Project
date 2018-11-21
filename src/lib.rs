@@ -227,8 +227,8 @@ impl Actor {
 			actor.life = 0.0;
 		}
 
-		actor.velocity[0] += x_acc * dt;
-		actor.velocity[1] += y_acc * dt;
+		actor.velocity[0] += actor.accel[0] * dt;
+		actor.velocity[1] += actor.accel[1] * dt;
 		actor.point[0] += x_vel * dt;
 		actor.point[1] += y_vel * dt;
 
@@ -388,10 +388,10 @@ pub struct MovingElement {
 	// 放つShotの種類
 }
 impl MovingElement {
-	fn boss_new (count: u32, shot_type: &str) -> MovingElement{
+	fn new (count: u32, accel: [f32; 2], shot_type: &str) -> MovingElement{
 		MovingElement {
 			count: count,
-			accel: [0.0; 2],
+			accel: accel,
 			shot_type: shot_type.to_string(),
 		}
 	}
@@ -536,20 +536,21 @@ impl ggez::event::EventHandler for MainState {
 									self.enemys = Vec::new();
 									self.enshots = Vec::new();
 									let mut boss_moving: Vec<MovingElement>;
+									let ac = [0.0; 2];
 									match b_type {
 										"m_boss" => {
 											boss_moving = vec![
-												MovingElement::boss_new(30, "waiting"),
-												MovingElement::boss_new(1200, "b_six_rotate"),
-												MovingElement::boss_new(1200, "b_six_fireflower"),
+												MovingElement::new(30,[0.0; 2], "waiting"),
+												MovingElement::new(1200, [0.0; 2], "b_six_rotate"),
+												MovingElement::new(1200, [0.0; 2], "b_six_fireflower"),
 											];
 										},
 										"boss" => {
 											boss_moving = vec![
-												MovingElement::boss_new(30, "waiting"),
-												MovingElement::boss_new(1200, "b_six_rotate"),
-												MovingElement::boss_new(1200, "b_carpet_bomb"),
-												MovingElement::boss_new(1200, "b_six_fireflower"),
+												MovingElement::new(30, [0.0; 2],"waiting"),
+												MovingElement::new(300, [0.0; 2], "b_six_rotate"),
+												MovingElement::new(300, [0.0; 2], "b_carpet_bomb"),
+												MovingElement::new(300, [0.0; 2], "b_six_fireflower"),
 											];
 										},
 										_ => boss_moving = Vec::new(),
@@ -729,9 +730,16 @@ impl ggez::event::EventHandler for MainState {
 				rr > xx + yy
 			};
 
-			// Update Enemy Point----------
+			// Update EnShot----------
 			// Hit EnemyShots & Player
 			for es in &mut self.enshots {
+				es.count += 1;
+				for esm in es.moving.iter() {
+					if esm.count == es.count {
+						es.accel = esm.accel;
+						es.memo = esm.shot_type.clone();
+					}
+				}
 				Actor::update_point_shot(es, seconds);
 
 				let pl = &mut self.player;
