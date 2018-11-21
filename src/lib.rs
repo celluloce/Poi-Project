@@ -541,19 +541,19 @@ impl ggez::event::EventHandler for MainState {
 										"m_boss" => {
 											boss_moving = vec![
 												MovingElement::new(30,[0.0; 2], "waiting"),
-												MovingElement::new(1200, [0.0; 2], "m_six_rotate"),
+												//MovingElement::new(1200, [0.0; 2], "m_six_rotate"),
 												MovingElement::new(1200, [0.0; 2], "m_six_fireflower"),
 											];
 										},
 										"boss" => {
 											boss_moving = vec![
 												MovingElement::new(30, [0.0; 2],"waiting"),
-												MovingElement::new(300, [0.0; 2], "b_normal"),
-												MovingElement::new(300, [0.0; 2], "b_6rotate_4rand"),
-												MovingElement::new(300, [0.0; 2], "b_normal"),
-												MovingElement::new(300, [0.0; 2], "b_2fireflower_4pdis"),
-												MovingElement::new(300, [0.0; 2], "b_normal"),
-												MovingElement::new(300, [0.0; 2], "b_6carpet_fireflower"),
+												//MovingElement::new(300, [0.0; 2], "b_normal"),
+												//MovingElement::new(300, [0.0; 2], "b_6rotate_4rand"),
+												//MovingElement::new(300, [0.0; 2], "b_normal"),
+												//MovingElement::new(300, [0.0; 2], "b_2fireflower_4pdis"),
+												//MovingElement::new(300, [0.0; 2], "b_normal"),
+												MovingElement::new(1200, [0.0; 2], "b_6carpet_fireflower"),
 											];
 										},
 										_ => boss_moving = Vec::new(),
@@ -613,7 +613,6 @@ impl ggez::event::EventHandler for MainState {
 					match bs[0].memo.as_str() {
 						"m_six_rotate" => shot_type::m_six_rotate(&mut bs[0], pp, es, gc),
 						"m_six_fireflower" => shot_type::m_six_fireflower(&mut bs[0], pp, es, gc),
-						//"b_carpet_bomb" => shot_type::b_carpet_bomb(&mut bs[0], pp, es, gc, rn),
 						"b_normal" => shot_type::b_normal(&mut bs[0], pp, es, gc, rn),
 						"b_6rotate_4rand" => shot_type::b_6rotate_4rand(&mut bs[0], pp, es, gc, rn),
 						"b_2fireflower_4pdis" => shot_type::b_2fireflower_4pdis(&mut bs[0], pp, es, gc, rn),

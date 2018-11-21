@@ -160,11 +160,10 @@ fn carpet_bomb(
 	p_point: [f32; 2],
 	en_shots: &mut Vec<Actor>,
 	count: u32,
-	rand: &ThreadRng) {
-	let origin_rate = count % 30;
-
-	if origin_rate == 0 {
-		let shot_scal = 300.0;
+	rand: &ThreadRng,
+	shot_origin: bool) {
+	if shot_origin {
+		let shot_scal = 200.0;
 		let angle = 2.0 * rand.to_owned().gen::<f32>();
 
 		let mut push_shot = Actor {
@@ -173,36 +172,38 @@ fn carpet_bomb(
 			accel: [0.0, 0.0],
 			moving: vec![
 				MovingElement::new(30, [0.7, 0.0], "origin"),
-				MovingElement::new(130, [0.0, 0.0], "origin"),
+				MovingElement::new(120, [0.0, 0.0], ""),
 			],
 			memo: "".to_owned(),
 			..Default::default()
 		};
+
 		en_shots.push(push_shot.clone());
 		push_shot.velocity[0] += 2.0 / 3.0;
 		en_shots.push(push_shot.clone());
 		push_shot.velocity[0] += 2.0 / 3.0;
 		en_shots.push(push_shot.clone());
-	}
-	let split_rate = count % 120;
-	for es in en_shots.clone() {
-		// origin弾のみ弾幕を生成
-		match es.memo.as_str() {
-			"origin" => (),
-			_ => continue,
-		}
-		if split_rate > 80 && count % 5 == 0 {
-			let mut push_shot = Actor {
-				point: es.point,
-				velocity: es.velocity,
-				memo: "".to_owned(),
-				..Default::default()
-			};
-			push_shot.velocity[1] = 250.0;
-			push_shot.velocity[0] += 0.7;
-			en_shots.push(push_shot.clone());
-			push_shot.velocity[0] -= 1.4;
-			en_shots.push(push_shot.clone());
+	} else {
+		let split_rate = count % 120;
+		for es in en_shots.clone() {
+			// origin弾のみ弾幕を生成
+			match es.memo.as_str() {
+				"origin" => (),
+				_ => continue,
+			}
+			if count % 5 == 0 {
+				let mut push_shot = Actor {
+					point: es.point,
+					velocity: es.velocity,
+					memo: "".to_owned(),
+					..Default::default()
+				};
+				push_shot.velocity[1] = 250.0;
+				push_shot.velocity[0] += 0.7;
+				en_shots.push(push_shot.clone());
+				push_shot.velocity[0] -= 1.4;
+				en_shots.push(push_shot.clone());
+			}
 		}
 	}
 }
@@ -321,9 +322,13 @@ pub fn b_6carpet_fireflower(
 	en_shots: &mut Vec<Actor>,
 	count: u32,
 	rand: &ThreadRng) {
-	let rate = count % 300;
-	carpet_bomb(enemy, p_point, en_shots, rate, rand);
-	if rate % 30 == 0 && rate <= 90 {
-		fireflower(enemy, p_point, en_shots, rate, false);
+	let rate = count % 500;
+	if  rate % 3 == 0 && rate % 90 <= 60 && rate <= 240 {
+		six_rotate(enemy, p_point, en_shots, count, true);
+	} else if rate >= 250 && rate % 30 == 0 {
+		carpet_bomb(enemy, p_point, en_shots, count, rand, true);
+	}
+	if rate % 40 < 20 {
+		carpet_bomb(enemy, p_point, en_shots, count, rand, false);
 	}
 }
