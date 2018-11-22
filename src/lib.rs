@@ -55,6 +55,7 @@ enum WindowState {
 	GamingBoss,
 	GameOver,
 	GameClear,
+	ThankYouForPlaying,
 }
 
 #[derive(Debug, Clone)]
@@ -533,6 +534,7 @@ impl ggez::event::EventHandler for MainState {
 								"clear" => {
 									self.enemys = Vec::new();
 									self.window_state = WindowState::GameClear;
+									self.game_count[0] = 0;
 									break 'stage;
 								}
 								b_type @  "boss" | b_type @ "m_boss" => {
@@ -650,7 +652,13 @@ impl ggez::event::EventHandler for MainState {
 				WindowState::GameOver => {
 					continue
 				},
-				WindowState::GameClear => (),
+				WindowState::GameClear => {
+					self.game_count[0] += 1;
+					if self.game_count[0] >= 300 {
+						self.window_state = WindowState::ThankYouForPlaying;
+					}
+				},
+				WindowState::ThankYouForPlaying => (),
 			}
 			// --------------------
 
@@ -959,6 +967,14 @@ impl ggez::event::EventHandler for MainState {
 				};
 				graphics::draw_ex(ctx, drawable, params);
 				graphics_draw(ctx, 30, "GameClear", [400.0, 300.0]);
+			},
+			WindowState::ThankYouForPlaying => {
+				let drawable = &self.assets.brack_out_img;
+				let params = graphics::DrawParam {
+					..Default::default()
+				};
+				graphics::draw_ex(ctx, drawable, params);
+				graphics_draw(ctx, 30, "Thank you for playing", [400.0, 300.0]);
 			}
 			_ => (),
 		}
