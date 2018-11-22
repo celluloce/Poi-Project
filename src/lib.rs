@@ -10,6 +10,7 @@ use ggez::event::{self, Keycode, Mod};
 use ggez::timer;
 use ggez::{Context, ContextBuilder, GameResult};
 use ggez::conf;
+use ggez::error::GameError;
 
 use serde_json::Value;
 
@@ -674,7 +675,12 @@ impl ggez::event::EventHandler for MainState {
 						self.input_break.shot = true;
 					}
 					// ---------------------
-					continue
+
+					self.game_count[0] += 1;
+					if self.game_count[0] >= 180 && self.input.shot {
+						return Err(GameError::UnknownError(String::from("You Lose")));
+					}
+					continue;
 				},
 				WindowState::GameClear => {
 					self.game_count[0] += 1;
@@ -694,7 +700,7 @@ impl ggez::event::EventHandler for MainState {
 					// ---------------------
 					self.game_count[0] += 1;
 					if self.game_count[0] >= 240 && self.input.shot {
-						self.window_state = WindowState::Title;
+						return Err(GameError::UnknownError(String::from("You Win")));
 					}
 				},
 			}
@@ -740,6 +746,7 @@ impl ggez::event::EventHandler for MainState {
 
 			if self.player.life <= 0.0 {
 				self.window_state = WindowState::GameOver;
+				self.game_count[0] = 0;
 			}
 
 			// -------------------------
@@ -996,7 +1003,23 @@ impl ggez::event::EventHandler for MainState {
 					..Default::default()
 				};
 				graphics::draw_ex(ctx, drawable, params);
+
+				// ゆっくり明るくなっていく
+				let mut c = 0;
+				if self.game_count[0] * 5 < 255 {
+					c = self.game_count[0] as u8 * 5;;
+				} else {
+					c = 255;
+				}
+				graphics::set_color(ctx, graphics::Color::from((c, c, c, 255)))?;
+				// --------------------
+
 				graphics_draw(ctx, 30, "GameOver", [400.0, 300.0]);
+				if self.game_count[0] >= 240 {
+					graphics_draw(ctx, 20, "Press Z to close winodw", [350.0, 400.0]);
+				}
+
+				graphics::set_color(ctx, graphics::Color::from((255, 255, 255, 255)))?;
 			}
 			WindowState::GameClear => {
 				let drawable = &self.assets.brack_out_img;
@@ -1027,6 +1050,10 @@ impl ggez::event::EventHandler for MainState {
 				// draw text
 				graphics_draw(ctx, 60, "Thank you", [700.0, 200.0]);
 				graphics_draw(ctx, 60, "for playing", [750.0, 350.0]);
+
+				if self.game_count[0] >= 240 {
+					graphics_draw(ctx, 30, "Press Z to close winodw", [700.0, 550.0]);
+				}
 			}
 			_ => (),
 		}
