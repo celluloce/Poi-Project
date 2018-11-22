@@ -424,6 +424,7 @@ pub struct MainState {
 	//rand_v: Vec<f32>,
 	rand: ThreadRng,
 	assets: Assets,
+	bomb: u32,
 	score: u32,
 }
 
@@ -495,6 +496,7 @@ impl MainState {
 			rand: rng,
 			game_count: [initial_count, 0],
 			assets: Assets::new(ctx).unwrap(),
+			bomb: 4,
 			score: 0,
 		};
 
@@ -763,11 +765,25 @@ impl ggez::event::EventHandler for MainState {
 				Actor::update_point_shot(s, seconds);
 			}
 			// -------------------------
+
+			// Bomb ----------
+			if self.input.bomb && !self.input_break.bomb && self.bomb > 0 {
+				self.player.memo = "trans".to_owned();
+				self.input_break.bomb = true;
+				self.bomb -= 1;
+			}
+			// -------------------------
+
 			// Enemyの更新
 			// - Jsonから取得したデータから、Enemyの動作を書き換え
 			// - 弾幕を張る
 			// - 位置の更新
 			for e in &mut self.enemys {
+				if self.input_break.bomb {
+					e.life = 0.0;
+					self.score += 30;
+					continue;
+				}
 				for m in 0..e.moving.len() {
 					if e.moving[m].count == self.game_count[0] {
 						e.accel = e.moving[m].accel;
@@ -789,7 +805,7 @@ impl ggez::event::EventHandler for MainState {
 			}
 			//-------------------------
 
-			let in_bbox = |ac1: &mut Actor, ac2: &mut Actor| {
+			let in_bbox = |ac1: &Actor, ac2: &Actor| {
 				// rr > xx + yy
 				let x = ac1.point[0] - ac2.point[0];
 				let y = ac1.point[1] - ac2.point[1];
@@ -805,6 +821,10 @@ impl ggez::event::EventHandler for MainState {
 			// Hit EnemyShots & Player
 			for es in &mut self.enshots {
 				es.count += 1;
+				if self.input_break.bomb {
+					es.life = 0.0;
+					continue;
+				}
 				for esm in es.moving.iter() {
 					if esm.count == es.count {
 						es.accel = esm.accel;
@@ -820,12 +840,13 @@ impl ggez::event::EventHandler for MainState {
 					*pl = Actor::trans_pleyer_new(pl.life);
 				}
 			}
-			let p_count = &mut self.player.count;
+			let mut p_count = self.player.count;
 			if self.player.memo == "trans".to_owned() {
-				*p_count += 1;
-				if *p_count > 180 {
+				self.player.count += 1;
+				if self.player.count > 180 {
 					self.player.memo = "".to_owned();
-					*p_count = 0;
+					self.input_break.bomb = false;
+					self.player.count= 0;
 				}
 			}
 			// -------------------------
@@ -844,7 +865,7 @@ impl ggez::event::EventHandler for MainState {
 			}
 			// -------------------------
 
-			// Hit PlayerShots & Enemy----------
+			// Hit PlayerShots & Enemy, Player & Enemy----------
 			for en in &mut self.enemys {
 				for ps in &mut self.plshots {
 					if in_bbox(en, ps) {
@@ -854,6 +875,11 @@ impl ggez::event::EventHandler for MainState {
 							self.score += 30;
 						}
 					}
+				}
+
+				if self.player.memo != "trans".to_owned() && in_bbox(&self.player, en) {
+					self.player.life -= 1.0;
+					self.player = Actor::trans_pleyer_new(self.player.life);
 				}
 			}
 			// -------------------------
@@ -995,6 +1021,10 @@ impl ggez::event::EventHandler for MainState {
 		// Print Player life
 		let dis_str = format!("Life: {}", self.player.life as usize);
 		graphics_draw(ctx, 18, &dis_str, [900.0, 150.0]);
+
+		// Print bomb
+		let dis_str = format!("Bomb: {}", self.bomb as usize);
+		graphics_draw(ctx, 18, &dis_str, [900.0, 200.0]);
 
 		match self.window_state {
 			WindowState::GameOver => {
