@@ -790,6 +790,7 @@ impl ggez::event::EventHandler for MainState {
 				self.player.memo = "trans".to_owned();
 				self.input_break.bomb = true;
 				self.bomb -= 1;
+				self.effects.push(Actor::effect_new(self.player.point, [0.0; 2], Vec::new(), "bomb_wave"))
 			}
 			// -------------------------
 
@@ -903,10 +904,25 @@ impl ggez::event::EventHandler for MainState {
 			}
 			// -------------------------
 
+			// Update Bomb----------
+			for ef in &mut self.effects {
+				match ef.memo.as_str() {
+					"bomb_wave" => {
+						ef.count += 1;
+						if ef.count >= 180 {
+							ef.life = 0.0;
+						}
+					}
+					_ => (),
+				}
+			}
+			// -------------------------
+
 			// Clear zero_life Enemy, Shot----------
 			self.plshots.retain(|s| s.life > 0.0);
 			self.enemys.retain(|s| s.life > 0.0);
 			self.enshots.retain(|s| s.life > 0.0);
+			self.effects.retain(|s| s.life > 0.0);
 			// -------------------------
 		}
 		Ok(())
@@ -1024,6 +1040,28 @@ impl ggez::event::EventHandler for MainState {
 				10.0,
 				0.1,
 			);
+		}
+
+		// draw effect
+		for ef in &mut self.effects {
+			match ef.memo.as_str() {
+				"bomb_wave" => {
+					let img = &self.assets.effect_img;
+					let img_scale = ef.count as f32 * 0.1;
+					let ce = 255 - ef.count as u8;
+					let img_color = graphics::Color::from((ce, ce, ce, 255));
+
+					let drawparams = graphics::DrawParam {
+						dest: graphics::Point2::new(ef.point[0], ef.point[1]),
+						offset: graphics::Point2::new(0.482, 0.5),
+						scale: graphics::Point2::new(img_scale, img_scale),
+						color: Some(img_color),
+						..Default::default()
+					};
+					graphics::draw_ex(ctx, img, drawparams);
+				},
+				_ => (),
+			}
 		}
 
 		// draw frame
