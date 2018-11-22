@@ -47,6 +47,7 @@ enum ActorType {
 	Boss,
 	PlShot,
 	EnShot,
+	Effect,
 }
 
 #[derive(Debug, PartialEq)]
@@ -163,6 +164,19 @@ impl Actor {
 			moving: Vec::new(),
 			count: 0,
 			memo: String::new(),
+		}
+	}
+	fn effect_new(point: [f32; 2], velocity: [f32; 2], moving: Vec<MovingElement>, memo: &str) -> Actor {
+		Actor {
+			actor_type: ActorType::Effect,
+			point: point,
+			accel: [0.0; 2],
+			velocity: velocity,
+			bbox_size: 10.0,
+			life: 1.0,
+			moving: moving,
+			count: 0,
+			memo: memo.to_owned(),
 		}
 	}
 	fn update_point(actor: &mut Actor, dt: f32) {
@@ -286,6 +300,7 @@ struct Assets {
 	player_front_img: graphics::Image,
 	player_right_img: graphics::Image,
 	player_left_img: graphics::Image,
+	effect_img: graphics::Image,
 	ending_img: graphics::Image,
 }
 
@@ -296,6 +311,7 @@ impl Assets {
 		let player_front_img = graphics::Image::new(ctx,"/player_front.png").unwrap();
 		let player_left_img = graphics::Image::new(ctx,"/player_left.png").unwrap();
 		let player_right_img = graphics::Image::new(ctx,"/player_right.png").unwrap();
+		let effect_img = graphics::Image::new(ctx, "/effect.png").unwrap();
 		let ending_img = graphics::Image::new(ctx, "/thanks_sign.png").unwrap();
 		Ok(Assets {
 			frame_img,
@@ -303,6 +319,7 @@ impl Assets {
 			player_front_img,
 			player_right_img,
 			player_left_img,
+			effect_img,
 			ending_img,
 		})
 	}
@@ -416,6 +433,7 @@ pub struct MainState {
 	enemys: Vec<Actor>,
 	boss: Vec<Actor>,
 	enshots: Vec<Actor>,
+	effects: Vec<Actor>,
 	stage: Vec<Stage>,
 	input: InputState,
 	input_break: InputState,
@@ -489,6 +507,7 @@ impl MainState {
 			enemys: Vec::with_capacity(30),
 			boss: Vec::with_capacity(1),
 			enshots: Vec::with_capacity(100),
+			effects: Vec::with_capacity(30),
 			stage: stage1,
 			input: InputState::new(),
 			input_break: InputState::new(),
