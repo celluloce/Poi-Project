@@ -241,7 +241,7 @@
 		},
 		{
 			"_comment" : ["ステージボス"],
-			"count": [4700],
+			"count": [4800],
 			"char_type": "boss",
 			"number_class": [1, 0],
 			"point": [350.0, 0.0],
@@ -254,7 +254,7 @@
 		},
 		{
 			"_comment" : ["クリア"],
-			"count": [4800],
+			"count": [4900],
 			"char_type": "clear",
 			"number_class": [1, 0],
 			"point": [350.0, 0.0],
