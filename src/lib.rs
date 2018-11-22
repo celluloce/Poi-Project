@@ -283,6 +283,7 @@ struct Assets {
 	player_front_img: graphics::Image,
 	player_right_img: graphics::Image,
 	player_left_img: graphics::Image,
+	ending_img: graphics::Image,
 }
 
 impl Assets {
@@ -292,12 +293,14 @@ impl Assets {
 		let player_front_img = graphics::Image::new(ctx,"/player_front.png").unwrap();
 		let player_left_img = graphics::Image::new(ctx,"/player_left.png").unwrap();
 		let player_right_img = graphics::Image::new(ctx,"/player_right.png").unwrap();
+		let ending_img = graphics::Image::new(ctx, "/thanks_sign.png").unwrap();
 		Ok(Assets {
 			frame_img,
 			brack_out_img,
 			player_front_img,
 			player_right_img,
 			player_left_img,
+			ending_img,
 		})
 	}
 	fn draw_player (
@@ -511,7 +514,7 @@ impl ggez::event::EventHandler for MainState {
 
 
 		while timer::check_update_time(ctx, FPS) {
-			println!("{:?}", self.enemys);
+			//println!("{:?}", self.enemys);
 			let mut game_count_use = 0;
 
 			// WindowStateの分岐----------
@@ -641,7 +644,7 @@ impl ggez::event::EventHandler for MainState {
 							bs[0].moving.remove(0);
 							bs[0].memo = bs[0].moving[0].shot_type.clone();
 						} else {
-							println!("boss end");
+							//println!("boss end");
 							*bs = Vec::new();
 							*es = Vec::new();
 							self.window_state = WindowState::Gaming;
@@ -654,11 +657,17 @@ impl ggez::event::EventHandler for MainState {
 				},
 				WindowState::GameClear => {
 					self.game_count[0] += 1;
-					if self.game_count[0] >= 300 {
+					if self.game_count[0] >= 180 {
+						self.game_count[0] = 0;
 						self.window_state = WindowState::ThankYouForPlaying;
 					}
 				},
-				WindowState::ThankYouForPlaying => (),
+				WindowState::ThankYouForPlaying => {
+					self.game_count[0] += 1;
+					if self.game_count[0] >= 240 && self.input.shot {
+						self.window_state = WindowState::Title;
+					}
+				},
 			}
 			// --------------------
 
@@ -969,12 +978,26 @@ impl ggez::event::EventHandler for MainState {
 				graphics_draw(ctx, 30, "GameClear", [400.0, 300.0]);
 			},
 			WindowState::ThankYouForPlaying => {
-				let drawable = &self.assets.brack_out_img;
+				// ゆっくり明るくなっていく
+				let mut c = 0;
+				if self.game_count[0] * 5 < 255 {
+					c = self.game_count[0] as u8 * 5;;
+				} else {
+					c = 255;
+				}
+				graphics::set_color(ctx, graphics::Color::from((c, c, c, 255)))?;
+				// --------------------
+
+				// draw picture
+				let drawable = &self.assets.ending_img;
 				let params = graphics::DrawParam {
 					..Default::default()
 				};
 				graphics::draw_ex(ctx, drawable, params);
-				graphics_draw(ctx, 30, "Thank you for playing", [400.0, 300.0]);
+
+				// draw text
+				graphics_draw(ctx, 60, "Thank you", [700.0, 200.0]);
+				graphics_draw(ctx, 60, "for playing", [750.0, 350.0]);
 			}
 			_ => (),
 		}
