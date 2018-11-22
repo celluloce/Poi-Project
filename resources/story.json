@@ -1,5 +1,5 @@
 {"version": "1.0.4",
-	"initial_count": 4400,
+	"initial_count": 4750,
 	"_stage_guide": [
 		"+---+-------+-----+ 0px",
 		"|   |       |     |",
@@ -247,6 +247,19 @@
 			"point": [350.0, 0.0],
 			"shift_point": [0.0, 0.0],
 			"velocity": [0.0, 400.0],
+			"life": 5.0,
+			"moving": [
+				{"count": 0, "accel": [0.0, 0.0], "shot_type": "none"}
+			]
+		},
+		{
+			"_comment" : ["クリア"],
+			"count": [4800],
+			"char_type": "clear",
+			"number_class": [1, 0],
+			"point": [350.0, 0.0],
+			"shift_point": [0.0, 0.0],
+			"velocity": [0.0, 0.0],
 			"life": 5.0,
 			"moving": [
 				{"count": 0, "accel": [0.0, 0.0], "shot_type": "none"}

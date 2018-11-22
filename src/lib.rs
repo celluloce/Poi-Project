@@ -54,6 +54,7 @@ enum WindowState {
 	Gaming,
 	GamingBoss,
 	GameOver,
+	GameClear,
 }
 
 #[derive(Debug, Clone)]
@@ -277,6 +278,7 @@ impl InputState {
 #[derive(Debug)]
 struct Assets {
 	frame_img: graphics::Image,
+	brack_out_img: graphics::Image,
 	player_front_img: graphics::Image,
 	player_right_img: graphics::Image,
 	player_left_img: graphics::Image,
@@ -285,14 +287,16 @@ struct Assets {
 impl Assets {
 	fn new(ctx: &mut Context) -> GameResult<Assets> {
 		let frame_img = graphics::Image::new(ctx, "/Frame.png").unwrap();
+		let brack_out_img = graphics::Image::new(ctx, "/brack_out.png").unwrap();
 		let player_front_img = graphics::Image::new(ctx,"/player_front.png").unwrap();
 		let player_left_img = graphics::Image::new(ctx,"/player_left.png").unwrap();
 		let player_right_img = graphics::Image::new(ctx,"/player_right.png").unwrap();
 		Ok(Assets {
 			frame_img,
+			brack_out_img,
 			player_front_img,
 			player_right_img,
-			player_left_img
+			player_left_img,
 		})
 	}
 	fn draw_player (
@@ -506,7 +510,8 @@ impl ggez::event::EventHandler for MainState {
 
 
 		while timer::check_update_time(ctx, FPS) {
-			let mut game_count_use;
+			println!("{:?}", self.enemys);
+			let mut game_count_use = 0;
 
 			// WindowStateの分岐----------
 			match self.window_state {
@@ -522,11 +527,16 @@ impl ggez::event::EventHandler for MainState {
 
 					// Jsonから取得したデータから、Enemyを生成
 					// stage element number
-					for st in &mut self.stage {
+					'stage: for st in &mut self.stage {
 						if st.count == self.game_count[0] {
-							// char_type = "boss"が見つかった場合、WindowStateがGamingBossになる
 							match st.char_type.as_str() {
+								"clear" => {
+									self.enemys = Vec::new();
+									self.window_state = WindowState::GameClear;
+									break 'stage;
+								}
 								b_type @  "boss" | b_type @ "m_boss" => {
+									// char_type = "boss"が見つかった場合、WindowStateがGamingBossになる
 									// Window切り替え
 									self.window_state = WindowState::GamingBoss;
 									self.game_count[0] += 1;
@@ -566,7 +576,7 @@ impl ggez::event::EventHandler for MainState {
 												"",
 											));
 									// -------------------------
-									continue;
+									break 'stage;
 								}
 								_ => (),
 							}
@@ -631,6 +641,7 @@ impl ggez::event::EventHandler for MainState {
 						} else {
 							println!("boss end");
 							*bs = Vec::new();
+							*es = Vec::new();
 							self.window_state = WindowState::Gaming;
 						}
 					}
@@ -638,7 +649,8 @@ impl ggez::event::EventHandler for MainState {
 				}
 				WindowState::GameOver => {
 					continue
-				}
+				},
+				WindowState::GameClear => (),
 			}
 			// --------------------
 
@@ -853,9 +865,7 @@ impl ggez::event::EventHandler for MainState {
 					//eprintln!("there is no boss");
 				}
 			}
-			WindowState::GameOver => {
-				graphics_draw(ctx, 30, "GameOver", [400.0, 300.0]);
-			}
+			_ => (),
 		}
 
 		// drow player circle
@@ -932,6 +942,26 @@ impl ggez::event::EventHandler for MainState {
 		// Print Player life
 		let dis_str = format!("Life: {}", self.player.life as usize);
 		graphics_draw(ctx, 18, &dis_str, [900.0, 150.0]);
+
+		match self.window_state {
+			WindowState::GameOver => {
+				let drawable = &self.assets.brack_out_img;
+				let params = graphics::DrawParam {
+					..Default::default()
+				};
+				graphics::draw_ex(ctx, drawable, params);
+				graphics_draw(ctx, 30, "GameOver", [400.0, 300.0]);
+			}
+			WindowState::GameClear => {
+				let drawable = &self.assets.brack_out_img;
+				let params = graphics::DrawParam {
+					..Default::default()
+				};
+				graphics::draw_ex(ctx, drawable, params);
+				graphics_draw(ctx, 30, "GameClear", [400.0, 300.0]);
+			}
+			_ => (),
+		}
 
 		graphics::present(ctx);
 		Ok(())
