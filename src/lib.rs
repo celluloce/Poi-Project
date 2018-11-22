@@ -261,6 +261,7 @@ struct InputState {
 	left: bool,
 	shift: bool,
 	shot: bool,
+	bomb: bool,
 }
 
 impl InputState {
@@ -272,6 +273,7 @@ impl InputState {
 			left: false,
 			shift: false,
 			shot: false,
+			bomb: false,
 		}
 	}
 }
@@ -415,6 +417,7 @@ pub struct MainState {
 	enshots: Vec<Actor>,
 	stage: Vec<Stage>,
 	input: InputState,
+	input_break: InputState,
 	game_count: [u32; 2],
 	// [道中, Boss]
 	//rand_v: Vec<f32>,
@@ -486,6 +489,7 @@ impl MainState {
 			enshots: Vec::with_capacity(100),
 			stage: stage1,
 			input: InputState::new(),
+			input_break: InputState::new(),
 			//rand_v: rand_v,
 			rand: rng,
 			game_count: [initial_count, 0],
@@ -520,6 +524,15 @@ impl ggez::event::EventHandler for MainState {
 			// WindowStateの分岐----------
 			match self.window_state {
 				WindowState::Title => {
+					// InputStateのbreak----------
+					if self.input_break.shot {
+						self.input.shot = false;
+					}
+					if self.input.shot || self.input_break.shot {
+						self.input_break.shot = true;
+					}
+					// ---------------------
+
 					if self.input.shot {
 						self.window_state = WindowState::Gaming;
 					}
@@ -653,6 +666,14 @@ impl ggez::event::EventHandler for MainState {
 					// -------------------------
 				}
 				WindowState::GameOver => {
+					// InputStateのbreak----------
+					if self.input_break.shot {
+						self.input.shot = false;
+					}
+					if self.input.shot || self.input_break.shot {
+						self.input_break.shot = true;
+					}
+					// ---------------------
 					continue
 				},
 				WindowState::GameClear => {
@@ -663,6 +684,14 @@ impl ggez::event::EventHandler for MainState {
 					}
 				},
 				WindowState::ThankYouForPlaying => {
+					// InputStateのbreak----------
+					if self.input_break.shot {
+						self.input.shot = false;
+					}
+					if self.input.shot || self.input_break.shot {
+						self.input_break.shot = true;
+					}
+					// ---------------------
 					self.game_count[0] += 1;
 					if self.game_count[0] >= 240 && self.input.shot {
 						self.window_state = WindowState::Title;
@@ -1015,6 +1044,7 @@ impl ggez::event::EventHandler for MainState {
 			Keycode::Left => self.input.left = true,
 			Keycode::LShift => self.input.shift = true,
 			Keycode::Z => self.input.shot = true,
+			Keycode::X => self.input.bomb = true,
 			_ => ()
 		}
 	}
@@ -1026,7 +1056,11 @@ impl ggez::event::EventHandler for MainState {
 			Keycode::Right => self.input.right = false,
 			Keycode::Left => self.input.left = false,
 			Keycode::LShift => self.input.shift = false,
-			Keycode::Z => self.input.shot = false,
+			Keycode::Z => {
+				self.input.shot = false;
+				self.input_break.shot = false;
+			}
+			Keycode::X => self.input.bomb = false,
 			_ => ()
 		}
 	}
