@@ -1,5 +1,4 @@
 use Actor;
-use MainState;
 use MovingElement;
 use rand::{Rng, ThreadRng};
 use std::f32;

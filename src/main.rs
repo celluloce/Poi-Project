@@ -1,10 +1,8 @@
 extern crate ggez;
 extern crate poi_project;
 
-use ggez::graphics;
-use ggez::event::{self, Keycode, Mod};
-use ggez::timer;
-use ggez::{Context, ContextBuilder, GameResult};
+use ggez::event;
+use ggez::ContextBuilder;
 use ggez::conf;
 
 use std::{path, env};

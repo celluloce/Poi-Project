@@ -6,10 +6,9 @@ extern crate ggez;
 extern crate rand;
 
 use ggez::graphics;
-use ggez::event::{self, Keycode, Mod};
+use ggez::event::{Keycode, Mod};
 use ggez::timer;
 use ggez::{Context, ContextBuilder, GameResult};
-use ggez::conf;
 use ggez::error::GameError;
 
 use serde_json::Value;
@@ -17,7 +16,7 @@ use serde_json::Value;
 use std::fs::File;
 use std::{path, env};
 use std::io::Read;
-use rand::{Rng, ThreadRng};
+use rand::ThreadRng;
 
 pub mod shot_type;
 
