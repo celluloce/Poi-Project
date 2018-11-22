@@ -572,19 +572,19 @@ impl ggez::event::EventHandler for MainState {
 										"m_boss" => {
 											boss_moving = vec![
 												MovingElement::new(30,[0.0; 2], "waiting"),
-												//MovingElement::new(1200, [0.0; 2], "m_six_rotate"),
-												MovingElement::new(1200, [0.0; 2], "m_six_fireflower"),
+												MovingElement::new(1500, [0.0; 2], "m_six_rotate"),
+												MovingElement::new(1500, [0.0; 2], "m_six_fireflower"),
 											];
 										},
 										"boss" => {
 											boss_moving = vec![
 												MovingElement::new(30, [0.0; 2],"waiting"),
-												//MovingElement::new(300, [0.0; 2], "b_normal"),
-												//MovingElement::new(300, [0.0; 2], "b_6rotate_4rand"),
-												//MovingElement::new(300, [0.0; 2], "b_normal"),
-												//MovingElement::new(300, [0.0; 2], "b_2fireflower_4pdis"),
-												//MovingElement::new(300, [0.0; 2], "b_normal"),
-												MovingElement::new(1200, [0.0; 2], "b_6carpet_fireflower"),
+												MovingElement::new(1500, [0.0; 2], "b_normal"),
+												MovingElement::new(1500, [0.0; 2], "b_6rotate_4rand"),
+												MovingElement::new(1500, [0.0; 2], "b_normal"),
+												MovingElement::new(1500, [0.0; 2], "b_2fireflower_4pdis"),
+												MovingElement::new(1500, [0.0; 2], "b_normal"),
+												MovingElement::new(1500, [0.0; 2], "b_6carpet_fireflower"),
 											];
 										},
 										_ => boss_moving = Vec::new(),
@@ -655,7 +655,7 @@ impl ggez::event::EventHandler for MainState {
 					if bs[0].life < 0.0 || game_count_use == bs[0].moving[0].count {
 						if bs[0].moving.len() > 1 {
 							self.game_count[1] = 1;
-							bs[0].life = 600.0;
+							bs[0].life = 500.0;
 							*es = Vec::new();
 							bs[0].moving.remove(0);
 							bs[0].memo = bs[0].moving[0].shot_type.clone();

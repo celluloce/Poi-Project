@@ -1,5 +1,5 @@
 {"version": "1.0.4",
-	"initial_count": 4750,
+	"initial_count": 0,
 	"_stage_guide": [
 		"+---+-------+-----+ 0px",
 		"|   |       |     |",
@@ -241,7 +241,7 @@
 		},
 		{
 			"_comment" : ["ステージボス"],
-			"count": [4600],
+			"count": [4700],
 			"char_type": "boss",
 			"number_class": [1, 0],
 			"point": [350.0, 0.0],
