@@ -216,8 +216,8 @@ impl Actor {
 			actor.life = 0.0;
 		}
 
-		actor.velocity[0] += x_acc * dt;
-		actor.velocity[1] += y_acc * dt;
+		actor.velocity[0] += x_acc * RELATIVE_X * dt;
+		actor.velocity[1] += y_acc * RELATIVE_Y * dt;
 		actor.point[0] += x_vel * dt;
 		actor.point[1] += y_vel * dt;
 	}
