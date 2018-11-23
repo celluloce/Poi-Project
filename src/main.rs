@@ -14,8 +14,14 @@ pub const SCREEN_HEIGHT: u32 = 960;
 
 pub fn main() {
 	let mut cb = ContextBuilder::new("poi-project", "ggez")
-		.window_setup(conf::WindowSetup::default().title("poi-project"))
-		.window_mode(conf::WindowMode::default().dimensions(SCREEN_WIDTH, SCREEN_HEIGHT));
+		.window_setup(conf::WindowSetup::default()
+					  .title("poi-project")
+					  )
+		.window_mode(conf::WindowMode::default()
+					 .dimensions(SCREEN_WIDTH, SCREEN_HEIGHT)
+					 .min_dimensions(SCREEN_WIDTH, SCREEN_HEIGHT)
+					 .max_dimensions(SCREEN_WIDTH, SCREEN_HEIGHT)
+					 );
 
 	if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
 		let mut path = path::PathBuf::from(manifest_dir);

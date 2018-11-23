@@ -1066,6 +1066,7 @@ impl ggez::event::EventHandler for MainState {
 		// draw frame
 		let drawable = &self.assets.frame_img;
 		let params = graphics::DrawParam {
+			scale: graphics::Point2::new(RELATIVE_X, RELATIVE_Y),
 			..Default::default()
 		};
 		graphics::draw_ex(ctx, drawable, params);
