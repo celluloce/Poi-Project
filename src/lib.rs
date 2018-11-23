@@ -253,20 +253,23 @@ impl Actor {
 
 		actor.velocity[0] += actor.accel[0] * dt;
 		actor.velocity[1] += actor.accel[1] * dt;
-		actor.point[0] += x_vel * dt;
-		actor.point[1] += y_vel * dt;
+		actor.point[0] += x_vel * RELATIVE_X * dt;
+		actor.point[1] += y_vel * RELATIVE_Y * dt;
 
 	}
 
 	fn to_relative_window(mut self) -> Actor {
-		println!("before: {:?}", self.point);
-		self.point[0] *= RELATIVE_X ;
-		self.point[1] *= RELATIVE_Y ;
-		println!("after: {:?}", self.point);
-		self.velocity[0] *= RELATIVE_X ;
-		self.velocity[1] *= RELATIVE_Y ;
-		self.accel[0] *= RELATIVE_X ;
-		self.accel[1] *= RELATIVE_Y ;
+		self.point[0] *= RELATIVE_X;
+		self.point[1] *= RELATIVE_Y;
+		match self.actor_type {
+			ActorType::PlShot | ActorType::EnShot => (),
+			_ => {
+				self.velocity[0] *= RELATIVE_X ;
+				self.velocity[1] *= RELATIVE_Y ;
+				self.accel[0] *= RELATIVE_X ;
+				self.accel[1] *= RELATIVE_Y ;
+			}
+		}
 		Actor {
 			actor_type: self.actor_type,
 			point: self.point,
