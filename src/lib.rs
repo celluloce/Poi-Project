@@ -807,9 +807,9 @@ impl ggez::event::EventHandler for MainState {
 			if self.input.shot && game_count_use % 3 == 0 {
 				let mut pp = self.player.point;
 				pp[0] += 20.0;
-				self.plshots.push(Actor::player_shot_new(pp).to_relative_window());
+				self.plshots.push(Actor::player_shot_new(pp));
 				pp[0] -= 40.0;
-				self.plshots.push(Actor::player_shot_new(pp).to_relative_window());
+				self.plshots.push(Actor::player_shot_new(pp));
 			}
 			for s in &mut self.plshots {
 				Actor::update_point_shot(s, seconds);
