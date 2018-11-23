@@ -20,8 +20,8 @@ use rand::ThreadRng;
 
 pub mod shot_type;
 
-pub const SCREEN_WIDTH: f32 = 880.0;
-pub const SCREEN_HEIGHT: f32 = 460.0;
+pub const SCREEN_WIDTH: f32 = 960.0;
+pub const SCREEN_HEIGHT: f32 = 720.0;
 
 //const GAME_COUNT: u32 = 3500;
 
@@ -382,6 +382,7 @@ impl Assets {
 		let drawparams = graphics::DrawParam {
 			dest: point,
 			offset: graphics::Point2::new(0.5, 0.5),
+			scale: graphics::Point2::new(RELATIVE_X, RELATIVE_Y),
 			..Default::default()
 		};
 		graphics::draw_ex(ctx, img, drawparams)
@@ -806,9 +807,9 @@ impl ggez::event::EventHandler for MainState {
 			// Update Plshot state----------
 			if self.input.shot && game_count_use % 3 == 0 {
 				let mut pp = self.player.point;
-				pp[0] += 20.0;
+				pp[0] += 20.0 * RELATIVE_X;
 				self.plshots.push(Actor::player_shot_new(pp));
-				pp[0] -= 40.0;
+				pp[0] -= 40.0 * RELATIVE_X;
 				self.plshots.push(Actor::player_shot_new(pp));
 			}
 			for s in &mut self.plshots {
@@ -821,7 +822,7 @@ impl ggez::event::EventHandler for MainState {
 				self.player.memo = "trans".to_owned();
 				self.input_break.bomb = true;
 				self.bomb -= 1;
-				self.effects.push(Actor::effect_new(self.player.point, [0.0; 2], Vec::new(), "bomb_wave").to_relative_window())
+				self.effects.push(Actor::effect_new(self.player.point, [0.0; 2], Vec::new(), "bomb_wave"))
 			}
 			// -------------------------
 
@@ -972,21 +973,34 @@ impl ggez::event::EventHandler for MainState {
 
 		};
 
+		let rel_u32 = |mut c: u32| -> u32 {
+			(c as f32 * RELATIVE_X) as u32
+		};
+
+		let rel_poi = |mut c: [f32; 2]| -> [f32; 2] {
+			[c[0] * RELATIVE_X, c[1] * RELATIVE_Y]
+		};
+
 		// match Window State
 		match self.window_state {
 			WindowState::Title => {
 				// Print "poi-Project"
-				graphics_draw(ctx, 100, "poi-Project", [300.0; 2]);
+				graphics_draw(ctx, rel_u32(100), "poi-Project", rel_poi([300.0; 2]));
 
 				// Write "-"
 				graphics::rectangle(
 					ctx,
 					graphics::DrawMode::Fill,
-					graphics::Rect::new(495.0, 380.0, 40.0, 10.0),
+					graphics::Rect::new(
+						495.0 * RELATIVE_X,
+						380.0 * RELATIVE_Y,
+						40.0 * RELATIVE_X,
+						10.0 * RELATIVE_Y
+						),
 				);
 
 				// Print "press Z key"
-				graphics_draw(ctx, 30, "Please press Z key", [400.0, 600.0]);
+				graphics_draw(ctx, rel_u32(30), "Please press Z key", rel_poi([400.0, 600.0]));
 
 				// Skip other code
 				graphics::present(ctx);
@@ -1002,10 +1016,10 @@ impl ggez::event::EventHandler for MainState {
 				let bs = &self.boss;
 				if self.boss.len() >= 1 {
 					let dis_str = format!("Boss: {}", bs[0].life);
-					graphics_draw(ctx, 18, &dis_str, [bs[0].point[0] + 50.0, bs[0].point[1]]);
+					graphics_draw(ctx, rel_u32(18), &dis_str, [bs[0].point[0] + 50.0, bs[0].point[1]]);
 					let count_down = (bs[0].moving[0].count - self.game_count[1]) / 60;
 					let dis_str = format!("Time: {}", count_down);
-					graphics_draw(ctx, 18, &dis_str, [700.0 ,40.0]);
+					graphics_draw(ctx, rel_u32(18), &dis_str, rel_poi([700.0 ,40.0]));
 				} else {
 					//eprintln!("there is no boss");
 				}
@@ -1021,7 +1035,7 @@ impl ggez::event::EventHandler for MainState {
 					ctx,
 					graphics::DrawMode::Fill,
 					graphics::Point2::new(pl_point[0],pl_point[1]),
-					10.0,
+					10.0 * RELATIVE_X,
 					0.1,
 				);
 			}
@@ -1033,7 +1047,12 @@ impl ggez::event::EventHandler for MainState {
 			graphics::rectangle(
 				ctx,
 				graphics::DrawMode::Fill,
-				graphics::Rect::new(point[0] - 8.0, point[1] - 15.0, 16.0, 30.0),
+				graphics::Rect::new(
+					point[0] - 8.0 * RELATIVE_X,
+					point[1] - 15.0 * RELATIVE_X,
+					16.0 * RELATIVE_X,
+					30.0 * RELATIVE_Y
+				),
 			);
 		}
 
@@ -1044,7 +1063,7 @@ impl ggez::event::EventHandler for MainState {
 				ctx,
 				graphics::DrawMode::Fill,
 				graphics::Point2::new(point[0],point[1]),
-				30.0,
+				30.0 * RELATIVE_X,
 				0.1,
 			);
 		}
@@ -1056,7 +1075,7 @@ impl ggez::event::EventHandler for MainState {
 				ctx,
 				graphics::DrawMode::Fill,
 				graphics::Point2::new(point[0],point[1]),
-				20.0,
+				20.0 * RELATIVE_X,
 				0.1,
 			);
 		}
@@ -1068,7 +1087,7 @@ impl ggez::event::EventHandler for MainState {
 				ctx,
 				graphics::DrawMode::Fill,
 				graphics::Point2::new(point[0],point[1]),
-				10.0,
+				10.0 * RELATIVE_X,
 				0.1,
 			);
 		}
@@ -1078,7 +1097,7 @@ impl ggez::event::EventHandler for MainState {
 			match ef.memo.as_str() {
 				"bomb_wave" => {
 					let img = &self.assets.effect_img;
-					let img_scale = ef.count as f32 * 0.1;
+					let img_scale = ef.count as f32 * 0.1 * RELATIVE_X;
 					let ce = 255 - ef.count as u8;
 					let img_color = graphics::Color::from((ce, ce, ce, 255));
 
@@ -1105,20 +1124,21 @@ impl ggez::event::EventHandler for MainState {
 
 		// Print score
 		let dis_str = format!("Score: {}", self.score);
-		graphics_draw(ctx, 18, &dis_str, [900.0, 100.0]);
+		graphics_draw(ctx, rel_u32(18), &dis_str, rel_poi([900.0, 100.0]));
 
 		// Print Player life
 		let dis_str = format!("Life: {}", self.player.life as usize);
-		graphics_draw(ctx, 18, &dis_str, [900.0, 150.0]);
+		graphics_draw(ctx, rel_u32(18), &dis_str, rel_poi([900.0, 150.0]));
 
 		// Print bomb
 		let dis_str = format!("Bomb: {}", self.bomb as usize);
-		graphics_draw(ctx, 18, &dis_str, [900.0, 200.0]);
+		graphics_draw(ctx, rel_u32(18), &dis_str, rel_poi([900.0, 200.0]));
 
 		match self.window_state {
 			WindowState::GameOver => {
 				let drawable = &self.assets.brack_out_img;
 				let params = graphics::DrawParam {
+					scale: graphics::Point2::new(RELATIVE_X, RELATIVE_Y),
 					..Default::default()
 				};
 				graphics::draw_ex(ctx, drawable, params);
@@ -1133,9 +1153,9 @@ impl ggez::event::EventHandler for MainState {
 				graphics::set_color(ctx, graphics::Color::from((c, c, c, 255)))?;
 				// --------------------
 
-				graphics_draw(ctx, 30, "GameOver", [400.0, 300.0]);
+				graphics_draw(ctx, rel_u32(30), "GameOver", rel_poi([400.0, 300.0]));
 				if self.game_count[0] >= 240 {
-					graphics_draw(ctx, 20, "Press Z to close winodw", [350.0, 400.0]);
+					graphics_draw(ctx, rel_u32(20), "Press Z to close winodw", rel_poi([350.0, 400.0]));
 				}
 
 				graphics::set_color(ctx, graphics::Color::from((255, 255, 255, 255)))?;
@@ -1143,10 +1163,11 @@ impl ggez::event::EventHandler for MainState {
 			WindowState::GameClear => {
 				let drawable = &self.assets.brack_out_img;
 				let params = graphics::DrawParam {
+					scale: graphics::Point2::new(RELATIVE_X, RELATIVE_Y),
 					..Default::default()
 				};
 				graphics::draw_ex(ctx, drawable, params);
-				graphics_draw(ctx, 30, "GameClear", [400.0, 300.0]);
+				graphics_draw(ctx, rel_u32(30), "GameClear", rel_poi([400.0, 300.0]));
 			},
 			WindowState::ThankYouForPlaying => {
 				// ゆっくり明るくなっていく
@@ -1162,16 +1183,17 @@ impl ggez::event::EventHandler for MainState {
 				// draw picture
 				let drawable = &self.assets.ending_img;
 				let params = graphics::DrawParam {
+					scale: graphics::Point2::new(RELATIVE_X, RELATIVE_Y),
 					..Default::default()
 				};
 				graphics::draw_ex(ctx, drawable, params);
 
 				// draw text
-				graphics_draw(ctx, 60, "Thank you", [700.0, 200.0]);
-				graphics_draw(ctx, 60, "for playing", [750.0, 350.0]);
+				graphics_draw(ctx, rel_u32(60), "Thank you", rel_poi([700.0, 200.0]));
+				graphics_draw(ctx, rel_u32(60), "for playing", rel_poi([750.0, 350.0]));
 
 				if self.game_count[0] >= 240 {
-					graphics_draw(ctx, 30, "Press Z to close winodw", [700.0, 550.0]);
+					graphics_draw(ctx, rel_u32(30), "Press Z to close winodw", rel_poi([700.0, 550.0]));
 				}
 			}
 			_ => (),
