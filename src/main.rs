@@ -8,19 +8,20 @@ use ggez::conf;
 use std::{path, env};
 
 use poi_project::MainState;
-
-pub const SCREEN_WIDTH: u32 = 1280;
-pub const SCREEN_HEIGHT: u32 = 960;
+use poi_project::SCREEN_WIDTH;
+use poi_project::SCREEN_HEIGHT;
 
 pub fn main() {
+	let w = SCREEN_WIDTH as u32;
+	let h = SCREEN_HEIGHT as u32;
 	let mut cb = ContextBuilder::new("poi-project", "ggez")
 		.window_setup(conf::WindowSetup::default()
 					  .title("poi-project")
 					  )
 		.window_mode(conf::WindowMode::default()
-					 .dimensions(SCREEN_WIDTH, SCREEN_HEIGHT)
-					 .min_dimensions(SCREEN_WIDTH, SCREEN_HEIGHT)
-					 .max_dimensions(SCREEN_WIDTH, SCREEN_HEIGHT)
+					 .dimensions(w, h)
+					 .min_dimensions(w, h)
+					 .max_dimensions(w, h)
 					 );
 
 	if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {

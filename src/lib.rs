@@ -20,15 +20,17 @@ use rand::ThreadRng;
 
 pub mod shot_type;
 
+pub const SCREEN_WIDTH: f32 = 880.0;
+pub const SCREEN_HEIGHT: f32 = 460.0;
+
 //const GAME_COUNT: u32 = 3500;
 
-pub const SCREEN_WIDTH: u32 = 1280;
-pub const SCREEN_HEIGHT: u32 = 960;
-
-pub const STAGE_UP: u32 = 30;
-pub const STAGE_DOWN: u32 = 930;
-pub const STAGE_LEFT: u32 = 60;
-pub const STAGE_RIGHT: u32 = 830;
+const RELATIVE_Y: f32 = SCREEN_HEIGHT / 1280.0;
+const RELATIVE_X: f32 = SCREEN_WIDTH / 960.0;
+pub const STAGE_UP: f32 = 30.0 * RELATIVE_Y;
+pub const STAGE_DOWN: f32 = 930.0 * RELATIVE_Y;
+pub const STAGE_LEFT: f32 = 60.0 * RELATIVE_X;
+pub const STAGE_RIGHT: f32 = 830.0 * RELATIVE_X;
 // +---+-------+-----+ 0px
 // |   |       |     |
 // +---+-------+-----+ 30px
@@ -191,10 +193,14 @@ impl Actor {
 			window_end = 30.0;
 		}
 
-		let s_up = STAGE_UP as f32 - window_end;
-		let s_down = STAGE_DOWN as f32 + window_end;
-		let s_left = STAGE_LEFT as f32 - window_end;
-		let s_right = STAGE_RIGHT as f32 + window_end;
+		let mergin_x = window_end * RELATIVE_X;
+		let mergin_y = window_end * RELATIVE_Y;
+
+
+		let s_up = STAGE_UP  - mergin_y;
+		let s_down = STAGE_DOWN  + mergin_y;
+		let s_left = STAGE_LEFT  - mergin_x;
+		let s_right = STAGE_RIGHT  + mergin_x;
 
 
 		if (actor.point[0] < s_left && x_vel < 0.0) || (actor.point[0] > s_right && x_vel > 0.0) {
@@ -219,10 +225,12 @@ impl Actor {
 	fn update_point_shot(actor: &mut Actor, dt: f32) {
 		use std::f32::consts::PI;
 
-		let s_up = STAGE_UP as f32 - 30.0;
-		let s_down = STAGE_DOWN as f32 + 30.0;
-		let s_left = STAGE_LEFT as f32 - 30.0;
-		let s_right = STAGE_RIGHT as f32 + 30.0;
+		let mergin_x = 30.0 * RELATIVE_X ;
+		let mergin_y = 30.0 * RELATIVE_Y ;
+		let s_up = STAGE_UP  - mergin_y;
+		let s_down = STAGE_DOWN  + mergin_y;
+		let s_left = STAGE_LEFT  - mergin_x;
+		let s_right = STAGE_RIGHT  + mergin_x;
 
 		let scalar = actor.accel[1];
 		let ragian = actor.accel[0] * PI;
@@ -248,6 +256,28 @@ impl Actor {
 		actor.point[0] += x_vel * dt;
 		actor.point[1] += y_vel * dt;
 
+	}
+
+	fn to_relative_window(mut self) -> Actor {
+		println!("before: {:?}", self.point);
+		self.point[0] *= RELATIVE_X ;
+		self.point[1] *= RELATIVE_Y ;
+		println!("after: {:?}", self.point);
+		self.velocity[0] *= RELATIVE_X ;
+		self.velocity[1] *= RELATIVE_Y ;
+		self.accel[0] *= RELATIVE_X ;
+		self.accel[1] *= RELATIVE_Y ;
+		Actor {
+			actor_type: self.actor_type,
+			point: self.point,
+			accel: self.accel,
+			velocity: self.velocity,
+			bbox_size: self.bbox_size,
+			life: self.life,
+			moving: self.moving,
+			count: self.count,
+			memo: self.memo,
+		}
 	}
 }
 
@@ -376,7 +406,6 @@ struct StageFromJson {
 	// 初期life
 	moving: Vec<MovingElement>,
 	// 移動データ
-
 }
 
 // 敵の出現, 行動のデータの構造体
@@ -402,6 +431,20 @@ struct Stage {
 
 }
 
+impl Stage {
+	fn to_relative_window(&mut self) {
+		self.point[0] *= RELATIVE_X ;
+		self.point[1] *= RELATIVE_Y ;
+		self.shift_point[0] *= RELATIVE_X ;
+		self.shift_point[1] *= RELATIVE_Y ;
+		self.velocity[0] *= RELATIVE_X ;
+		self.velocity[1] *= RELATIVE_Y ;
+		for movel in &mut self.moving {
+			movel.to_relative_window();
+		}
+	}
+}
+
 // Jsonから取り込んだ移動データ
 #[derive(Deserialize, Debug, Clone, PartialEq)]
 pub struct MovingElement {
@@ -421,6 +464,11 @@ impl MovingElement {
 			accel: accel,
 			shot_type: shot_type.to_string(),
 		}
+	}
+
+	fn to_relative_window(&mut self) {
+		self.accel[0] *= RELATIVE_X ;
+		self.accel[1] *= RELATIVE_Y ;
 	}
 }
 
@@ -487,6 +535,7 @@ impl MainState {
 			for moving in &mut stage.moving {
 				moving.count += stage.count;
 			}
+			stage.to_relative_window();
 		}
 		// ---------------------
 
@@ -501,7 +550,7 @@ impl MainState {
 
 		let s = MainState{
 			window_state: WindowState::Title,
-			player: Actor::player_new(),
+			player: Actor::player_new().to_relative_window(),
 			plshots: Vec::with_capacity(50),
 			enemys: Vec::with_capacity(30),
 			boss: Vec::with_capacity(1),
@@ -613,7 +662,7 @@ impl ggez::event::EventHandler for MainState {
 												0.1,
 												boss_moving,
 												"",
-											));
+											).to_relative_window());
 									// -------------------------
 									break 'stage;
 								}
@@ -624,7 +673,7 @@ impl ggez::event::EventHandler for MainState {
 							let v = [st.velocity[0], st.velocity[1]];
 							let l = st.life;
 							let m = st.moving.clone();
-							self.enemys.push(Actor::enemy_s_new(p, v, l, m));
+							self.enemys.push(Actor::enemy_s_new(p, v, l, m).to_relative_window());
 
 							if st.number_class[0] > 0 {
 								let add_count = st.number_class[1];
@@ -775,9 +824,9 @@ impl ggez::event::EventHandler for MainState {
 			if self.input.shot && game_count_use % 3 == 0 {
 				let mut pp = self.player.point;
 				pp[0] += 20.0;
-				self.plshots.push(Actor::player_shot_new(pp));
+				self.plshots.push(Actor::player_shot_new(pp).to_relative_window());
 				pp[0] -= 40.0;
-				self.plshots.push(Actor::player_shot_new(pp));
+				self.plshots.push(Actor::player_shot_new(pp).to_relative_window());
 			}
 			for s in &mut self.plshots {
 				Actor::update_point_shot(s, seconds);
@@ -789,7 +838,7 @@ impl ggez::event::EventHandler for MainState {
 				self.player.memo = "trans".to_owned();
 				self.input_break.bomb = true;
 				self.bomb -= 1;
-				self.effects.push(Actor::effect_new(self.player.point, [0.0; 2], Vec::new(), "bomb_wave"))
+				self.effects.push(Actor::effect_new(self.player.point, [0.0; 2], Vec::new(), "bomb_wave").to_relative_window())
 			}
 			// -------------------------
 
@@ -856,7 +905,7 @@ impl ggez::event::EventHandler for MainState {
 				if pl.memo != "trans".to_owned() && in_bbox(pl, es) {
 					es.life = 0.0;
 					pl.life -= 1.0;
-					*pl = Actor::trans_pleyer_new(pl.life);
+					*pl = Actor::trans_pleyer_new(pl.life).to_relative_window();
 				}
 			}
 			let mut p_count = self.player.count;
@@ -898,7 +947,7 @@ impl ggez::event::EventHandler for MainState {
 
 				if self.player.memo != "trans".to_owned() && in_bbox(&self.player, en) {
 					self.player.life -= 1.0;
-					self.player = Actor::trans_pleyer_new(self.player.life);
+					self.player = Actor::trans_pleyer_new(self.player.life).to_relative_window();
 				}
 			}
 			// -------------------------
