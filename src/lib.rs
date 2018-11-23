@@ -434,20 +434,6 @@ struct Stage {
 
 }
 
-impl Stage {
-	fn to_relative_window(&mut self) {
-		self.point[0] *= RELATIVE_X ;
-		self.point[1] *= RELATIVE_Y ;
-		self.shift_point[0] *= RELATIVE_X ;
-		self.shift_point[1] *= RELATIVE_Y ;
-		self.velocity[0] *= RELATIVE_X ;
-		self.velocity[1] *= RELATIVE_Y ;
-		for movel in &mut self.moving {
-			movel.to_relative_window();
-		}
-	}
-}
-
 // Jsonから取り込んだ移動データ
 #[derive(Deserialize, Debug, Clone, PartialEq)]
 pub struct MovingElement {
@@ -467,11 +453,6 @@ impl MovingElement {
 			accel: accel,
 			shot_type: shot_type.to_string(),
 		}
-	}
-
-	fn to_relative_window(&mut self) {
-		self.accel[0] *= RELATIVE_X ;
-		self.accel[1] *= RELATIVE_Y ;
 	}
 }
 
@@ -538,7 +519,6 @@ impl MainState {
 			for moving in &mut stage.moving {
 				moving.count += stage.count;
 			}
-			stage.to_relative_window();
 		}
 		// ---------------------
 
